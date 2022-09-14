@@ -1,0 +1,302 @@
+﻿@{
+    ViewBag.Title = "Quản lý nhân viên";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section styles{
+    <style>
+        #tblEmployee td {
+            padding: 12px;
+        }
+
+        #thdEmployee th {
+            padding: 15px 12px 12px 12px;
+        }
+    </style>
+}
+<section class="content-header">
+    <div class="row">
+        <div class="col-xs-12">
+            <h1 class="my-header">
+                Quản lý nhân viên
+            </h1>
+            <button class="btn btn-primary pull-right m-b-10" onclick="onAddEmployee()">Thêm nhân viên</button>
+        </div>
+    </div>
+</section>
+
+<section class="content">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box box-solid">
+                <div class="box-header with-border">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                                <input id="iptSearch" type="text" autocomplete="off" class="form-control" placeholder="Nhập để tìm kiếm">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                        </div>
+                        <div class="col-sm-3">
+                            <select id="selOrder" class="form-control select2-nosearch" onchange="loadPage()">
+                                <option value="1">Sắp xếp: Theo họ tên A - Z</option>
+                                <option value="2">Sắp xếp: Theo họ tên Z - A</option>
+                                <option value="3">Sắp xếp: Theo ngày tạo tăng dần</option>
+                                <option value="4">Sắp xếp: Theo ngày tạo giảm dần</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="box-body no-padding">
+                    <div class="table-responsive">
+                        <table class="table table-hover m-b-0">
+                            <thead id="thdEmployee" class="bg-info">
+                                <tr>
+                                    <th class="text-center text-muted w-50">#</th>
+                                    <th colspan="2">Họ và tên nhân viên</th>
+                                    <th class="w-p-20">Tài khoản</th>
+                                    <th class="w-p-20">Ngày tạo</th>
+                                    <th class="w-p-10">Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tblEmployee"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="box-footer">
+                    <div class="form-group">
+                        <div id="pageDescription" class="col-sm-5"></div>
+                        <div id="pageSelection" class="col-sm-7 no-padding"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        @Html.Partial("AddEmployeePartial")
+        @Html.Partial("EditEmployeePartial")
+    </div>
+</section>
+
+@section Scripts{
+    <script>
+        //---------------------------------------------------INITILAZATION
+
+        //---------------------------------------------------GLOBAL VARIABLES
+        var _TOTAL_ROW = 0;
+        var _PAGE_INDEX = 1;
+
+        //---------------------------------------------------TOP FILTER
+        $('#iptSearch').keyup(function () {
+            delay(function () {
+                loadPage();
+            }, 250);
+        });
+
+        //---------------------------------------------------ONLOAD FUNCTIONS
+        $(function () {
+            loadPage();
+        })
+
+        //--------------------------------------------------ADD EMPLOYEE
+        function onAddEmployee() {
+            $('#modalAddEmployee').find('input').val('');
+            $('#modalAddEmployee').modal({ backdrop: 'static' });
+        }
+
+        function addEmployee() {
+            let name = $('#iptNameAdd').val().trim();
+            let phone = $('#iptPhoneAdd').val().trim();
+            let email = $('#iptEmailAdd').val().trim();
+            let account = $('#iptAccountAdd').val().trim();
+            let pwd = $('#iptPasswordAdd').val();
+            let confirmPwd = $('#iptConfirmPasswordAdd').val();
+
+            if (name == '') {
+                alertify.error('Họ và tên không được bỏ trống');
+                $('#iptNameAdd').focus();
+                return;
+            }
+            if (account == '') {
+                alertify.error('Tài khoản không được bỏ trống');
+                $('#iptAccountAdd').focus();
+                return;
+            }
+            if (pwd == '') {
+                alertify.error('Mật khẩu không được bỏ trống');
+                $('#iptPasswordAdd').focus();
+                return;
+            }
+            if (confirmPwd != pwd) {
+                alertify.error('Nhập lại mật khẩu không chính xác');
+                $('#iptConfirmPasswordAdd').select();
+                return;
+            }
+            let d = {
+                Name: name,
+                Phone: phone,
+                Email: email,
+                Account: account,
+                Password: pwd
+            }
+            $.post('/Employee/Add', d, function (data) {
+                if (data == "1") {
+                    alertify.success("Thêm nhân viên thành công");
+                    loadPage();
+                    $('#modalAddEmployee').modal('hide');
+                } else if (data == "2") {
+                    alertify.error("Tài khoản đã tồn tại");
+                } else if (data == "0") {
+                    alertify.error("Đã có lỗi xảy ra");
+                }
+            }, 'html');
+        }
+
+        //--------------------------------------------------LOAD EMPLOYEE
+
+        function loadPage() {
+            $.get('/Employee/SelectPage', {
+                Search: $('#iptSearch').val()
+            }, function (data) {
+                if (data != '') {
+                    $.each(data, function (index, item) {
+                        _TOTAL_ROW = item.TotalRow;
+                        if (item.TotalPage > 1) {
+                            $('#pageSelection').twbsPagination('destroy');
+                            window.pagObj = $('#pageSelection').twbsPagination({
+                                totalPages: item.TotalPage,
+                                visiblePages: 5,
+                                startPage: 1,
+                                first: '←',
+                                last: '→',
+                                prev: '«',
+                                next: '»'
+                            }).on('page', function (event, page) {
+                                _PAGE_INDEX = page;
+                                loadTable();
+                            });
+                        }
+                        else {
+                            document.getElementById('pageSelection').innerHTML = '';
+                        }
+                        return false;
+                    })
+                }
+            }, 'json').done(loadTable);
+        }
+
+        function loadTable() {
+            showWaiting();
+            let html = '';
+            let defaultRows;
+            let d = {
+                Search: $('#iptSearch').val(),
+                OrderBy: $('#selOrder option:selected').val(),
+                PageIndex: _PAGE_INDEX
+            }
+            $.get('/Employee/SelectTable', d, function (data) {
+                if (data == '') {
+                    html = '<tr> <td class="text-center text-muted" colspan="8" style="padding-top: 20px;"><i class="fa fa-ellipsis-h fa-size-empty"></i><p>Không có kết quả nào để hiển thị</p></td></tr>'
+                    document.getElementById('pageDescription').innerHTML = '';
+                } else {
+                    $.each(data, function (index, item) {
+                        let htmlStatus = '';
+                        switch (item.UserStatus) {
+                            case 1: htmlStatus = '<span class ="label label-success">Hoạt động</span>';
+                                break;
+                            case 3: htmlStatus = '<span class ="label label-default">Tạm khóa</span>';
+                                break;
+                        }
+                        html += `
+                                <tr class="hand" data-id="${item.UserId}">
+                                    <td class="text-center text-muted">${((_PAGE_INDEX - 1) * item.DefaultRows + index + 1)}</td>
+                                    <td class="td-image"><p class="p-image" style="background-image: url('/Images/no-user.jpg')"></p></td>
+                                    <td class="text-primary">${item.UserFullName}</td>
+                                    <td>${item.Account}</td>
+                                    <td class="text-muted">${item.DateCreate}</td>
+                                    <td>${htmlStatus}</td>
+                                </tr>
+                            `;
+                        defaultRows = item.DefaultRows;
+                    })
+                    //set text of pageDescription
+                    let count = Object.keys(data).length;
+                    let start = (_PAGE_INDEX - 1) * defaultRows + 1;
+                    let end = start + count - 1;
+                    document.getElementById('pageDescription').innerHTML = 'Đang xem <b>' + (count == 0 ? 0 : start) + '</b> đến <b>' + end + '</b> trong tổng số <b>' + _TOTAL_ROW + '</b> mục';
+                }
+                $('#tblEmployee').html(html);
+                $('#tblEmployee tr').on('click', function () {
+                    onEditEmployee($(this).attr('data-id'));
+                })
+                closeWaiting();
+            }, 'json')
+            $('html, body').animate({ scrollTop: 0 }, 500);
+        }
+
+        //--------------------------------------------------EDIT & DELETE EMPLOYEE
+        function onEditEmployee(employeeId) {
+            showWaiting('tblEmployee');
+            $.post('/Employee/SelectId', {
+                UserId: employeeId
+            }, function (data) {
+                if (data != '') {
+                    $.each(data, function (index, item) {
+                        $('#iptAccountEdit').val(item.Account);
+                        $('#iptNameEdit').val(item.UserFullName);
+                        $('#iptPhoneEdit').val("");
+                        $('#iptEmailEdit').val("");
+                        return;
+                    })
+                    closeWaiting('tblEmployee');
+                }
+            }, 'json')
+            $('#btnDelete').attr('onclick', `deleteEmployee('${employeeId}')`);
+            $('#btnEdit').attr('onclick', `editEmployee('${employeeId}')`);
+            $('#modalEditEmployee').modal('show');
+        }
+
+        function editEmployee(employeeId) {
+            let name = $('#iptNameEdit').val().trim();
+            let phone = $('#iptPhoneEdit').val().trim();
+            let email = $('#iptEmailEdit').val().trim();
+            if (name == '') {
+                alertify.error('Họ và tên không được bỏ trống');
+                $('#iptNameEdit').focus();
+                return;
+            }
+
+            $.post('/Employee/Edit', {
+                Id: employeeId,
+                Name: name,
+                Phone: phone,
+                Email: email
+            }, function (data) {
+                if (data == '1') {
+                    alertify.success('Cập nhật nhân viên thành công');
+                    $('#modalEditEmployee').modal('hide');
+                    loadPage();
+                } else {
+                    alertify.error('Đã có lỗi xảy ra');
+                }
+            }, 'html')
+        }
+
+        function deleteEmployee(employeeId) {
+            alertify.confirm('Bạn có chắc chắn muốn xóa nhân viên này ?', function () {
+                $.post('/Employee/Delete', {
+                    Id: employeeId
+                }, function (data) {
+                    if (data == '1') {
+                        alertify.success('Xóa nhân viên thành công');
+                        $('#modalEditEmployee').modal('hide');
+                        loadPage();
+                    } else {
+                        alertify.error('Đã có lỗi xảy ra');
+                    }
+                }, 'html')
+            })
+        }
+
+    </script>
+}

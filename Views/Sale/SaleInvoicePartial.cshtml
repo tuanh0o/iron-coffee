@@ -1,0 +1,79 @@
+﻿@using System.Data;
+@{
+    DataTable dtInfo = ViewBag.dtInfo as DataTable;
+}
+<!-- Template In hóa đơn -->
+<div id="containerSalePrint" class="hidden">
+    <div id="divSalePrint" style="font-size:13px;">
+        <div class="row">
+            <div class="col-xs-12 p-l-0 p-r-0">
+                <div class="col-xs-12 text-center">
+                    <p><img class="img-circle" width="80" height="80" src="@dtInfo.Rows[0]["LogoPath"]"></p>
+                    <h4 class="m-b-0 text-bold">@dtInfo.Rows[0]["StoreName"]</h4>
+                    <p class="m-b-0">Địa chỉ: @dtInfo.Rows[0]["StoreAddress"]</p>
+                    <p>ĐT: @dtInfo.Rows[0]["StorePhone"]</p>
+                    <h4 class="m-t-15 m-b-15 text-bold" id="sppName">HÓA ĐƠN THANH TOÁN</h4>
+                </div>
+            </div>
+        </div>
+        <div class="row m-t-5 m-b-5" style="font-size:12px;">
+            <div class="col-xs-12">
+                <p class="m-b-0"><b>Hóa đơn: </b><span id="sppInvoiceCode"></span></p>
+                <p class="m-b-2"><b>Thời gian: </b><span id="sppInvoiceTime"></span></p>
+                <p class="m-b-2"><b>Ghi chú: </b><span id="sppInvoiceNote"></span></p>
+            </div>
+        </div>
+        <hr class="m-t-5 m-b-5" />
+        <div class="row m-t-10">
+            <div class="col-xs-12">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="w-30 text-center">#</th>
+                            <th>Mặt hàng</th>
+                            <th class="text-right">SL</th>
+                            <th class="text-right">TT</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblpInvoice">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <hr class="m-t-5 m-b-5" />
+        <div class="row f11">
+            <div class="col-xs-12 text-right">
+                <table style="width:100%">
+                    <tbody>
+                        <tr class="m-b-2">
+                            <td class="">Tổng cộng:</td>
+                            <td id="printTotalPrice" class="p-r-8">0</td>
+                        </tr>
+                        <tr class="m-b-2">
+                            <td class="">Giảm:</td>
+                            <td id="printSaleValue" class="p-r-8">0</td>
+                        </tr>
+                        <tr class="m-b-2">
+                            <td class="">Thu khác:</td>
+                            <td id="printRevenues" class="p-r-8">0</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td class="text-bold">Thành tiền:</td>
+                            <td class="text-bold p-r-8" id="printInvoiceValue">0</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        <hr class="m-t-5 m-b-5" />
+        <div class="row">
+            <div class="col-xs-12 text-center">
+                <i>@dtInfo.Rows[0]["WifiInfo"]</i>
+            </div>
+        </div>
+    </div>
+</div>
+
+

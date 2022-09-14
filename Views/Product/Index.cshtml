@@ -1,0 +1,582 @@
+﻿@using System.Data
+@{
+    ViewBag.Title = "Quản lý sản phẩm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    DataTable dtCategory = ViewBag.dtCategory as DataTable;
+}
+@section styles{
+    <style>
+        #tblProduct td {
+            padding: 7px;
+        }
+
+        #thdProduct th {
+            padding: 15px 12px 12px 12px;
+        }
+    </style>
+}
+<section class="content-header">
+    <div class="row">
+        <div class="col-xs-12">
+            <h1 class="my-header">
+                Quản lý sản phẩm
+            </h1>
+            <button class="btn btn-primary pull-right" onclick="onAddProduct()">Thêm SP</button>
+            @*<button class="btn btn-success pull-right m-r-5 hidden-xs" onclick=""><i class="fa fa-upload m-r-3"></i>Thêm Excel</button>
+                <button class="btn pull-right m-r-5 hidden-xs" onclick=""><i class="fa fa-download m-r-3"></i>Xuất Excel</button>*@
+        </div>
+    </div>
+</section>
+
+<section class="content m-t-10">
+    <div class="row">
+        <div class="col-md-3 ">
+            <div class="box box-primary box-solid">
+                <div class="box-header with-border">
+                    <h5 class="my-h5">Danh mục sản phẩm</h5>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" title="Chọn tất cả" data-toggle="tooltip" data-placement="top" onclick="refreshCategory()"><i class="fa fa-fw fa-refresh"></i></button>
+                        <button type="button" class="btn btn-box-tool" title="Thêm danh mục sản phẩm" data-toggle="tooltip" data-placement="top" onclick="onAddCategory()"><i class="fa fa-fw fa-plus-circle"></i></button>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <ul id="ulCategory" class="ul-edit nav nav-stacked">
+                        @if (dtCategory.Rows.Count == 0)
+                        {
+                            <li class="" data-id="">
+                                <a href="#"><span class="m-b-0 text-muted">Không có dữ liệu</span></a>
+                            </li>
+                        }
+                        else
+                        {
+                            foreach (DataRow item in dtCategory.Rows)
+                            {
+                                <li class="li-category" data-id="@item["ProductCategoryId"]">
+                                    <a href="#"><span class="m-b-0">@item["ProductCategoryName"] (@item["SumProduct"]) <i class="fa fa-pencil text-transparent pull-right i-edit-category"></i></span></a>
+                                </li>
+                            }
+                        }
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="box box-solid">
+                <div class="box-header with-border">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                                <input id="iptSearch" type="text" autocomplete="off" class="form-control" placeholder="Nhập để tìm kiếm">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                        </div>
+                        <div class="col-sm-3">
+                            <select id="selOrder" class="form-control select2-nosearch" onchange="loadPage()">
+                                <option value="0">Sắp xếp: Bán chạy nhất (trong tháng)</option>
+                                <option value="1">Sắp xếp: Theo tên a - z</option>
+                                <option value="2">Sắp xếp: Theo tên z - a</option>
+                                <option value="3">Sắp xếp: Theo giá tăng dần</option>
+                                <option value="4">Sắp xếp: Theo giá giảm dần</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="box-body no-padding">
+                    <div class="table-responsive m-b-0">
+                        <table class="table table-hover m-b-0">
+                            <thead id="thdProduct" class="bg-info">
+                                <tr>
+                                    <th class="text-center text-muted w-50">#</th>
+                                    <th>Sản phẩm</th>
+                                    <th class="w-p-20">Danh mục</th>
+                                    <th class="w-p-20">Giá (VND)</th>
+                                    <th class="w-p-10">Đã bán</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tblProduct"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="box-footer">
+                    <div class="form-group">
+                        <div id="pageDescription" class="col-sm-5"></div>
+                        <div id="pageSelection" class="col-sm-7 no-padding"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        @Html.Action("ModalAdd", "ProductCategory")
+        @Html.Action("ModalEdit", "ProductCategory")
+        @Html.Partial("AddPartial")
+        @Html.Partial("EditPartial")
+    </div>
+</section>
+@section Scripts{
+    <script>
+        //---------------------------------------------------GLOBAL VARIABLES
+        var _TOTAL_ROW = 0;
+        var _PAGE_INDEX = 1;
+        var _ID_CATEGORY = '';
+        var _DEFAULT_IMAGE = '/Images/default-product.png';
+
+        //---------------------------------------------------TOP FILTER
+        $('#iptSearch').keyup(function () {
+            delay(function () {
+                loadPage();
+            }, 250);
+        });
+
+        //---------------------------------------------------ONLOAD FUNCTIONS
+        $(function () {
+            loadPage();
+            bindingEventCategory();
+        })
+
+        //--------------------------------------------------ADD PRODUCT
+        function onAddProduct() {
+            loadSelectCategory('#selCategoryAdd');
+            $('#modalProductAdd').find('input, textarea').val('');
+            $('#iptPriceAdd').autoNumeric('set', 0);
+            $('#modalProductAdd').modal({ backdrop: 'static' });
+            $('#imgProductAdd').removeAttr('src').attr('src', _DEFAULT_IMAGE);
+            $('#iptProductCodeAdd').focus();
+        }
+
+        function addProduct() {
+            let cat = $('#selCategoryAdd option:selected').val();
+            let image = $('#imgProductAdd').attr('src');
+            let code = $('#iptProductCodeAdd').val().trim();
+            let name = $('#iptProductNameAdd').val().trim();
+            let price = $('#iptPriceAdd').autoNumeric('get');
+
+            if (code == '') {
+                alertify.error('Mã sản phẩm không được bỏ trống');
+                $('#iptProductCodeAdd').focus();
+                return;
+            }
+            if (name == '') {
+                alertify.error('Tên sản phẩm không được bỏ trống');
+                $('#iptProductNameAdd').focus();
+                return;
+            }
+            if (cat == null) {
+                alertify.error('Vui lòng chọn danh mục sản phẩm');
+                $('#selCategoryAdd').focus();
+                return;
+            }
+
+            let d = {
+                ProductCategoryId: cat,
+                ProductImage: image,
+                ProductCode: code,
+                ProductName: name,
+                ProductPrice: price
+            }
+            $.post('/Product/Insert', d, function (data) {
+                if (data == "1") {
+                    alertify.success("Thêm sản phẩm thành công");
+                    loadPage();
+                    loadCategory();
+                    $('#modalProductAdd').modal('hide');
+                } else if (data == "2") {
+                    alertify.error("Mã sản phẩm đã tồn tại");
+                    $('#iptProductCodeAdd').select();
+                } else if (data == "0") {
+                    alertify.error("Đã có lỗi xảy ra, vui lòng thử lại sau");
+                }
+            }, 'html');
+        }
+
+        //--------------------------------------------------LOAD Product
+
+        function loadPage() {
+            _PAGE_INDEX = 1;
+            $.get('/Product/SelectPage', {
+                CategoryId: _ID_CATEGORY,
+                Search: $('#iptSearch').val()
+            }, function (data) {
+                if (data != '') {
+                    $.each(data, function (index, item) {
+                        _TOTAL_ROW = item.TotalRow;
+                        if (item.TotalPage > 1) {
+                            $('#pageSelection').twbsPagination('destroy');
+                            window.pagObj = $('#pageSelection').twbsPagination({
+                                totalPages: item.TotalPage,
+                                visiblePages: 5,
+                                startPage: 1,
+                                first: '←',
+                                last: '→',
+                                prev: '«',
+                                next: '»'
+                            }).on('page', function (event, page) {
+                                _PAGE_INDEX = page;
+                                loadTable();
+                            });
+                        }
+                        else {
+                            document.getElementById('pageSelection').innerHTML = '';
+                        }
+                        return false;
+                    })
+                }
+            }, 'json').done(loadTable);
+        }
+
+        function loadTable() {
+            showWaiting();
+            let html = '';
+            let defaultRows;
+            let d = {
+                CategoryId: _ID_CATEGORY,
+                Search: $('#iptSearch').val(),
+                OrderBy: $('#selOrder option:selected').val(),
+                PageIndex: _PAGE_INDEX
+            }
+            $.get('/Product/SelectTable', d, function (data) {
+                if (data == '') {
+                    html = '<tr> <td class="text-center text-muted" colspan="8" style="padding-top: 20px;"><i class="fa fa-ellipsis-h fa-size-empty"></i><p>Không có kết quả nào để hiển thị</p></td></tr>'
+                    $('#pageDescription').html('');
+                    $('#tblProduct').html(html);
+                } else {
+                    $.each(data, function (index, item) {
+                        html += `<tr data-id="${item.ProductId}" class="hand">
+                                                <td class="text-center text-muted ver-mid">${((_PAGE_INDEX - 1) * item.DefaultRows + index + 1)}</td>
+                                                <td>
+                                                        <img class="img-circle" style="width:27px;height:27px;" src="${item.ProductImage}">
+                                                        <span class="text-muted">${item.ProductCode} - </span>
+                                                        <span class="">${item.ProductName}</span>
+                                                        
+                                                </td>
+                                                <td class="ver-mid">${item.ProductCategoryName}</td>
+                                                <td class="ver-mid">${item.ProductPrice.toLocaleString('en-us')}</td>
+                                                <td class="ver-mid">${item.SeltByMonth.toLocaleString('en-us')}</td>
+                                            </tr>`;
+                        defaultRows = item.DefaultRows;
+                    })
+                    //set text of pageDescription
+                    let count = Object.keys(data).length;
+                    let start = (_PAGE_INDEX - 1) * defaultRows + 1;
+                    let end = start + count - 1;
+                    document.getElementById('pageDescription').innerHTML = 'Đang xem <b>' + (count == 0 ? 0 : start) + '</b> đến <b>' + end + '</b> trong tổng số <b>' + _TOTAL_ROW + '</b> mục';
+                    $('#tblProduct').html(html);
+                    $('#tblProduct tr').on('click', function () {
+                        onEditProduct($(this).attr('data-id'));
+                    })
+                }
+
+                closeWaiting();
+            }, 'json')
+            $('html, body').animate({ scrollTop: 0 }, 500);
+        }
+
+        //--------------------------------------------------EDIT & DELETE Product
+        function onEditProduct(productId) {
+            loadSelectCategory('#selCategoryEdit');
+            showWaiting('tblProduct');
+            $.get('/Product/SelectId', {
+                ProductId: productId
+            }, function (data) {
+                if (data != '') {
+                    $.each(data, function (index, item) {
+                        $('#iptProductCodeEdit').val(item.ProductCode);
+                        $('#iptProductNameEdit').val(item.ProductName);
+                        $('#selCategoryEdit').val(item.ProductCategoryId).trigger('change');
+                        $('#iptPriceEdit').autoNumeric('set', item.ProductPrice);
+                        $('#imgProductEdit').removeAttr('src').attr('src', item.ProductImage);
+                        return;
+                    })
+                    closeWaiting('tblProduct');
+                }
+            }, 'json')
+            $('#btnDelete').attr('onclick', `deleteProduct('${productId}')`);
+            $('#btnUpdate').attr('onclick', `editProduct('${productId}')`);
+            $('#modalEditProduct').modal('show');
+        }
+
+        function editProduct(productId) {
+            let cat = $('#selCategoryEdit option:selected').val();
+            let image = $('#imgProductEdit').attr('src');
+            let name = $('#iptProductNameEdit').val().trim();
+            let price = $('#iptPriceEdit').autoNumeric('get');
+
+            if (name == '') {
+                alertify.error('Tên sản phẩm không được bỏ trống');
+                $('#iptProductNameAdd').focus();
+                return;
+            }
+            if (cat == null) {
+                alertify.error('Vui lòng chọn danh mục sản phẩm');
+                $('#selCategoryAdd').focus();
+                return;
+            }
+
+            let d = {
+                ProductId: productId,
+                ProductCategoryId: cat,
+                ProductImage: image,
+                ProductName: name,
+                ProductPrice: price
+            }
+
+            $.post('/Product/Update', d, function (data) {
+                if (data == '1') {
+                    alertify.success('Cập nhật sản phẩm thành công');
+                    $('#modalEditProduct').modal('hide');
+                    loadPage();
+                    loadCategory();
+                } else {
+                    alertify.error('Đã có lỗi xảy ra');
+                }
+            }, 'html')
+        }
+
+        function deleteProduct(productId) {
+            alertify.confirm('Bạn có chắc chắn muốn xóa sản phẩm này ?', function () {
+                $.post('/Product/Delete', {
+                    ProductId: productId
+                }, function (data) {
+                    if (data == '1') {
+                        alertify.success('Xóa sản phẩm thành công');
+                        $('#modalEditProduct').modal('hide');
+                        loadPage();
+                        loadCategory();
+                    } else {
+                        alertify.error('Đã có lỗi xảy ra');
+                    }
+                }, 'html')
+            })
+        }
+
+        //--------------------------------------------------ADD CATEGORY
+        function onAddCategory() {
+            $('#modalCategoryAdd').find('input, textarea').val('');
+            $('#modalCategoryAdd').modal({ backdrop: 'static' });
+        }
+
+        function addCategory() {
+            let name = $('#iptCategoryNameAdd').val();
+            let note = $('#txtCategoryNoteAdd').val();
+
+            if (name == '') {
+                alertify.error('Tên danh mục sản phẩm không được bỏ trống');
+                $('#iptCategoryNameAdd').focus();
+                return;
+            }
+
+            $.post('/ProductCategory/Insert', {
+                Name: name, Note: note
+            }, function (data) {
+                if (data == "1") {
+                    alertify.success('Thêm danh mục sản phẩm thành công !');
+                    $('#modalCategoryAdd').modal('hide');
+                    loadCategory();
+                } else if (data == "2") {
+                    alertify.error("Tên danh mục sản phẩm đã tồn tại");
+                } else if (data == "0") {
+                    alertify.error('Đã có lỗi xảy ra, vui lòng thử lại sau !');
+                }
+            })
+        }
+
+        function loadCategory() {
+            $.get('/ProductCategory/Select', {}, function (data) {
+                let html = data.map((item, index) => {
+                    return `<li class="li-category" data-id="${item.ProductCategoryId}">
+                                                        <a href="#"><span class="m-b-0">${item.ProductCategoryName} (${item.SumProduct}) <i class="fa fa-pencil text-transparent pull-right i-edit-category"></i></span></a>
+                                                    </li>`;
+                })
+                $('#ulCategory').html(html);
+                bindingEventCategory();
+            }, 'json');
+        }
+
+        //--------------------------------------------------EDIT & DELETE CATEGORY
+        function onUpdateCategory(categoryId) {
+            $.get("/ProductCategory/SelectId", {
+                ProductCategoryId: categoryId
+            }, function (data) {
+                data.every(item => {
+                    $('#iptCategoryNameEdit').val(item.ProductCategoryName);
+                    $('#txtCategoryNoteEdit').val(item.ProductCategoryNote);
+                })
+                $('#btnEditCategory').attr('onclick', 'updateCategory("' + categoryId + '")');
+                $('#btnDeleteCategory').attr('onclick', 'deleteCategory("' + categoryId + '")');
+            }, 'json');
+            $('#modalCategoryEdit').modal('show');
+        }
+
+        function updateCategory(categoryId) {
+            let d = {
+                ProductCategoryId: categoryId,
+                Name: $('#iptCategoryNameEdit').val(),
+                Note: $('#txtCategoryNoteEdit').val()
+            };
+            $.post("/ProductCategory/Update", d, function (data) {
+                if (data == "1") {
+                    alertify.success('Chỉnh sửa danh mục sản phẩm thành công !');
+                    $('#modalCategoryEdit').modal('hide');
+                    loadPage();
+                    loadCategory();
+                } else if (data == "2") {
+                    alertify.error("Tên danh mục sản phẩm đã tồn tại");
+                } else if (data == "0") {
+                    alertify.error('Đã có lỗi xảy ra, vui lòng thử lại sau !');
+                }
+            });
+            loadPage();
+        };
+
+        function deleteCategory(categoryId) {
+            alertify.confirm("Bạn có chắc chắc muốn xóa danh mục sản phẩm này ?", function () {
+                $.post("/ProductCategory/Delete", {
+                    ProductCategoryId: categoryId
+                }, function (data) {
+                    if (data) {
+                        alertify.success('Xóa thành công');
+                        $('#modalCategoryEdit').modal('hide');
+                        loadCategory();
+                    } else {
+                        alertify.error('Đã có lỗi xảy ra, vui lòng thử lại sau !');
+                    }
+                }, 'json');
+            });
+        }
+
+
+        //----------------------------------------------------
+
+        function bindingEventCategory() {
+            //choose Category
+            $('.li-category').unbind().on('click', function () {
+                $('.li-category').removeClass('active text-bold');
+                $(this).addClass('active text-bold');
+                _ID_CATEGORY = $(this).attr('data-id');
+                loadPage();
+            })
+
+            //edit Category
+            $('.i-edit-category').unbind().on('click', function () {
+                let categoryId = $(this).closest('li').attr('data-id');
+                onUpdateCategory(categoryId);
+            })
+        }
+
+        function refreshCategory() {
+            $('.li-category').removeClass('active text-bold');
+            _ID_CATEGORY = '';
+            loadPage();
+        }
+
+        function loadSelectCategory(element) {
+            $.get("/ProductCategory/Select", {}, function (data) {
+                let html = data.map((item, index) => {
+                    return `<option value="${item.ProductCategoryId}">${item.ProductCategoryName}</option>`;
+                }).join('');
+                $(element).html(html);
+                $(element).select2({ width: '100%' });
+            }, 'json');
+        }
+
+        //sự kiện thêm sp khi press Enter
+        $('#iptProductCodeAdd, #iptProductNameAdd, #iptPriceAdd').on('keypress', function (e) {
+            if (e.keyCode == 13) {
+                addProduct();
+            }
+        });
+
+        //sự kiện thêm danh mục khi press Enter
+        $('#iptCategoryNameAdd, #txtCategoryNoteAdd').on('keypress', function (e) {
+            if (e.keyCode == 13) {
+                addCategory();
+            }
+        });
+
+        //init event upload image add
+        var uploaderAdd = new plupload.Uploader({
+            runtimes: 'html5,flash,silverlight,html4',
+            browse_button: 'imgProductAdd',
+            unique_names: true,
+            multiple_queues: false,
+            multi_selection: false,
+            max_file_count: 1,
+            url: "/File/UploadImage",
+            filters: {
+                max_file_size: '1mb',
+                mime_types: [
+                    { title: "Image files", extensions: "jpg,png,jpeg" }
+                ],
+                prevent_duplicates: true
+            },
+            flash_swf_url: '/Scripts/plupload/js/Moxie.swf',
+            silverlight_xap_url: '/Scripts/plupload/js/Moxie.xap',
+            init: {
+                PostInit: function () {
+                },
+                FilesAdded: function (up, files) {
+                    uploaderAdd.start();
+                    return false;
+                },
+                UploadProgress: function (up, file) {
+                },
+                Error: function (up, err) {
+                    alertify.error(err.code + err.message);
+                },
+                FileUploaded: function (up, file, info) {
+                    let url = info.response;
+                    let img = $('#imgProductAdd');
+                    img.removeAttr('src');
+                    img.attr('src', url);
+                    uploaderAdd.splice();
+                },
+            }
+        });
+        uploaderAdd.init();
+
+        //init event upload image add
+        var uploaderEdit = new plupload.Uploader({
+            runtimes: 'html5,flash,silverlight,html4',
+            browse_button: 'imgProductEdit',
+            unique_names: true,
+            multiple_queues: false,
+            multi_selection: false,
+            max_file_count: 1,
+            url: "/File/UploadImage",
+            filters: {
+                max_file_size: '1mb',
+                mime_types: [
+                    { title: "Image files", extensions: "jpg,png,jpeg" }
+                ],
+                prevent_duplicates: true
+            },
+            flash_swf_url: '/Scripts/plupload/js/Moxie.swf',
+            silverlight_xap_url: '/Scripts/plupload/js/Moxie.xap',
+            init: {
+                PostInit: function () {
+                },
+                FilesAdded: function (up, files) {
+                    uploaderEdit.start();
+                    return false;
+                },
+                UploadProgress: function (up, file) {
+                },
+                Error: function (up, err) {
+                    alertify.error(err.code + err.message);
+                },
+                FileUploaded: function (up, file, info) {
+                    let url = info.response;
+                    let img = $('#imgProductEdit');
+                    img.removeAttr('src');
+                    img.attr('src', url);
+                    uploaderEdit.splice();
+                },
+            }
+        });
+        uploaderEdit.init();
+
+    </script>
+}

@@ -1,0 +1,361 @@
+﻿.hand {
+    cursor: pointer;
+}
+
+.page-tit {
+    display: inline-block;
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+    margin-top: 5px;
+}
+
+.min-w-100 {
+    min-width: 100px;
+}
+
+.btn-primary:hover {
+    border-color: #367fa9;
+}
+
+.btn {
+    border-radius: 2px;
+    border: unset;
+}
+
+.w-100-per {
+    width: 100%;
+}
+
+.m-l-0-imp {
+    margin-left: 0 !important;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.font-40 {
+    font-size: 40px;
+}
+
+.label-default {
+    background-color: #e1e6ef;
+}
+
+.label {
+    padding: 5px;
+}
+
+.text-normal {
+    font-weight: normal
+}
+
+.text-normal-imp {
+    font-weight: normal !important;
+}
+
+.user-block .username {
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.content-wrapper {
+    overflow: auto -moz-hidden-unscrollable;
+}
+
+textarea {
+    resize: vertical;
+}
+
+.box.box-solid.box-primary {
+    border: unset;
+    border-radius: 2px;
+}
+
+.box-body {
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+    border-bottom-left-radius: 2px;
+}
+
+.box-header > .fa, .box-header > .glyphicon, .box-header > .ion, .box-header .box-title {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.box-header {
+    padding: 8px 10px;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+}
+
+.box.box-solid.box-primary > .box-header {
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+}
+
+.nav-action > li > a {
+    padding: 9px 0px;
+}
+
+.nav-tabs-custom {
+    border-radius: 2px;
+}
+
+.img-avatar {
+    display: block;
+    width: 120px;
+    height: 130px;
+    border: 1px solid #d2d6de;
+    margin: 0px auto;
+    vertical-align: middle;
+}
+
+body {
+    padding-right: 0 !important
+}
+
+.modal-open {
+    padding-right: 0px !important;
+}
+
+.hide-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.jstree-default .jstree-icon:empty {
+    color: #337ab7;
+}
+
+.datepicker {
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0px;
+    padding-left: 13px;
+}
+
+.datepicker-dropdown {
+    background-color: #fff !important;
+    padding: 10px;
+}
+
+.datepicker table tr td.active, .datepicker table tr td.active.disabled, .datepicker table tr td.active.disabled:hover, .datepicker table tr td.active:hover {
+    background-color: #3c8dbc !important;
+    background-image: unset;
+    border-color: unset;
+    text-shadow: unset;
+    border-radius: 0px;
+}
+
+.datepicker table tr td.day.focused, .datepicker table tr td.day:hover {
+    background: #eee;
+    cursor: pointer;
+    border-radius: 0px;
+}
+
+.pagination {
+    margin: 5px 5px 0 0 !important;
+}
+
+.p-0-imp {
+    padding: 0 !important;
+}
+
+.p-t-15-imp {
+    padding-top: 15px !important;
+}
+
+.p-l-5 {
+    padding-left: 5px;
+}
+
+.font13 {
+    font-size: 13px;
+}
+
+.no-shadown {
+    box-shadow: unset
+}
+
+.pagination > li:first-child > a, .pagination > li:first-child > span {
+    margin-left: 0;
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+}
+
+
+.pagination > li:last-child > a, .pagination > li:last-child > span {
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+.waitMe_progress > div {
+    background-color: #3c8dbc !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    padding: 3px 10px;
+    margin-top: 4px;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    border: unset;
+    border-radius: 1px;
+}
+
+.select2-container .select2-search--inline .select2-search__field {
+    margin-left: 8px;
+    margin-top: 7px;
+}
+
+.select2-container {
+    height: 36px;
+}
+
+.select2-container--default .select2-selection--multiple {
+    height: 36px;
+}
+
+@media screen and (max-width: 767px) {
+    .xs-p-r-15 {
+        padding-right: 15px;
+    }
+
+    .xs-text-center {
+        text-align: center;
+    }
+
+    .xs-m-b-15 {
+        margin-bottom: 15px;
+    }
+}
+
+@media screen and (min-width: 1100px) {
+    .col-left {
+        width: 23% !important;
+    }
+
+    .col-right {
+        width: 77% !important;
+    }
+}
+
+@media screen and (min-width: 1200px) {
+    .col-left {
+        width: 22% !important;
+    }
+
+    .col-right {
+        width: 78% !important;
+    }
+}
+
+@media screen and (min-width: 1300px) {
+    .col-left {
+        width: 21% !important;
+    }
+
+    .col-right {
+        width: 79% !important;
+    }
+}
+
+@media screen and (min-width: 1400px) {
+    .col-left {
+        width: 20% !important;
+    }
+
+    .col-right {
+        width: 80% !important;
+    }
+}
+
+@media screen and (min-width: 1500px) {
+    .col-left {
+        width: 19% !important;
+    }
+
+    .col-right {
+        width: 81% !important;
+    }
+}
+
+@media screen and (min-width: 1600px) {
+    .col-left {
+        width: 18% !important;
+    }
+
+    .col-right {
+        width: 82% !important;
+    }
+}
+
+@media screen and (min-width: 1700px) {
+    .col-left {
+        width: 17% !important;
+    }
+
+    .col-right {
+        width: 83% !important;
+    }
+}
+
+@media screen and (min-width: 1800px) {
+    .col-left {
+        width: 16% !important;
+    }
+
+    .col-right {
+        width: 84% !important;
+    }
+}
+
+@media screen and (min-width: 1900px) {
+    .col-left {
+        width: 15% !important;
+    }
+
+    .col-right {
+        width: 85% !important;
+    }
+}
+
+@media screen and (min-width: 2000px) {
+    .col-left {
+        width: 14% !important;
+    }
+
+    .col-right {
+        width: 86% !important;
+    }
+}
+/*kun write*/
+.text-transparent {
+    color: transparent;
+}
+
+.ul-edit > li:hover > a > i {
+    color: #3c8dbc;
+}
+
+.p-image {
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    background-position: center;
+    background-size: contain;
+    margin: auto;
+    border: 1px solid #e2e0e0;
+}
+
+.table-img > tbody > tr > td {
+    padding: 12px;
+}
+
+.td-img {
+    padding: 3px 0px 5px !important;
+}
+
+/*end kun*/

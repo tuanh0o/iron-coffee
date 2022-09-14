@@ -1,0 +1,968 @@
+﻿@using System.Data;
+@{
+    ViewBag.Title = "Bán hàng - IRON coffee & tea";
+    Layout = "~/Views/Shared/_LayoutSale.cshtml";
+    DataTable dtInvoiceWaiting = ViewBag.dtInvoiceWaiting as DataTable;
+    DataTable dtInvoiceDetailWaiting = ViewBag.dtInvoiceDetailWaiting as DataTable;
+}
+<style>
+    .select2-selection__rendered {
+        padding-top: 5px;
+    }
+
+    .select2-selection__arrow {
+        margin-top: 5px;
+    }
+
+    .selection > .select2-selection {
+        height: 44px;
+        font-size: 20px;
+    }
+
+    .select2-container--default .select2-results > .select2-results__options {
+        overflow-y: unset;
+    }
+
+    .main-header .navbar .nav > li > a > .label {
+        top: 6px;
+        font-size: 10px;
+    }
+
+    .navbar-nav > .notifications-menu > .dropdown-menu > li .menu, .navbar-nav > .messages-menu > .dropdown-menu > li .menu, .navbar-nav > .tasks-menu > .dropdown-menu > li .menu {
+        max-height: 300px;
+    }
+</style>
+
+<header class="main-header">
+    <nav class="navbar navbar-static-top">
+        <div class="row" style="padding: 10px;">
+            <div class="col-md-9">
+                <select id="selSale" class="form-control" style="height: 44px;font-size: 20px;"></select>
+            </div>
+            <div class="col-md-3">
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+                        <li class="dropdown notifications-menu m-r-10">
+                            <a href="#" class="dropdown-toggle line-height-14" title="Số hóa đơn chưa được thanh toán" data-toggle="dropdown" aria-expanded="false">
+                                <i class="fa fa-tags fa-lg"></i>
+                                <span id="countWaitingInvoice" class="label label-danger">@(dtInvoiceWaiting.Rows.Count == 0 ? "" : dtInvoiceWaiting.Rows.Count.ToString())</span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <ul class="menu menu-shadow">
+                                        @foreach (DataRow item in dtInvoiceWaiting.Rows)
+                                        {
+                                            <li class="hand waiting-invoice" data-id="@item["InvoiceId"]" title="@item["InvoiceNote"] - @item["CreateDate"]" data-toggle="tooltip" data-placement="top">
+                                                <table class="table f13 m-b-10">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="text-primary">@item["InvoiceCode"] (@item["InvoiceNote"])</td>
+                                                            <td></td>
+                                                        </tr>
+                                                        @{
+                                                            var query = dtInvoiceDetailWaiting.AsEnumerable()
+                                                                .Where(n => n.Field<Guid>("InvoiceId").ToString() == item["InvoiceId"].ToString());
+                                                            DataTable dt = query.CopyToDataTable<DataRow>();
+                                                        }
+                                                        @foreach (DataRow product in dt.Rows)
+                                                        {
+                                                            <tr>
+                                                                <td>@product["ProductName"] (@product["ProductQuantity"])</td>
+                                                                <td class="text-right">@Convert.ToInt64(@product["ProductValue"]).ToString("N0")</td>
+                                                            </tr>
+                                                        }
+                                                        <tr>
+                                                            <td></td>
+                                                            <td class="text-right text-primary text-bold">@Convert.ToInt64(item["InvoiceValue"]).ToString("N0")</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </li>
+                                        }
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="dropdown notifications-menu">
+                            <a href="#" class="dropdown-toggle line-height-14" data-toggle="dropdown" aria-expanded="false">
+                                <i class="fa fa-bars fa-lg"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <ul class="menu">
+                                        <li>
+                                            <a href="/dashboard" target="_blank">
+                                                <i class="fa fa-home text-primary"></i> Trang chủ
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#" onclick="viewReportSale()">
+                                                <i class="fa fa-file text-success"></i> Xem báo cáo bán hàng hôm nay
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="row">
+            <!--Danh sách sản phẩm đang chọn-->
+            <div class="col-md-9 no-padding">
+                <div class="box box-solid my-box">
+                    <div class="box-body no-padding">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="table-reponsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th style="padding: 4px">&nbsp;</th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbdProduct">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--Thông tin hóa đơn-->
+            <div class="col-md-3 p-r-0 p-l-5 xs-p-l-0">
+                <div class="box box-solid my-box">
+                    <div class="box-header with-border" style="height:60px">
+                        <h4 class="text-center" id="hInvoiceHeader">THÔNG TIN HÓA ĐƠN</h4>
+                    </div>
+                    <div class="box-body no-padding">
+                        <!--Thời gian-->
+                        <div class="col-xs-12 m-t-10">
+                            <div class="col-xs-4 no-padding">
+                                <p class="p-t-8">Thời gian</p>
+                            </div>
+                            <div class="col-xs-8 no-padding">
+                                <input id="iptInvoiceTime" class="form-control my-form-control bor-bottom" value="@DateTime.Now.ToString("HH:mm dd/MM/yyyy")" disabled />
+                            </div>
+                        </div>
+
+                        <!--Khách hàng-->
+                        <div class="col-xs-12 m-t-10 hidden">
+                            <div class="col-xs-4 no-padding">
+                                <p class="p-t-8">Khách hàng<p />
+                            </div>
+                            <div class="col-xs-8 no-padding">
+                                <input class="form-control bor-bottom my-form-control" disabled />
+                            </div>
+                        </div>
+
+                        <!--Tổng tiền hàng-->
+                        <div class="col-xs-12 m-t-10">
+                            <div class="col-xs-4 no-padding">
+                                <p class="p-t-8">Tổng tiền hàng<p />
+                            </div>
+                            <div class="col-xs-8 no-padding text-right">
+                                <p class="f18 p-t-5" id="pTotalProductPrice" data-value="0">0</p>
+                            </div>
+                        </div>
+
+                        <!--Giảm giá-->
+                        <div class="col-xs-12 m-t-10">
+                            <div class="col-xs-4 no-padding">
+                                <p class="p-t-8">Giảm giá<p />
+                            </div>
+                            <div class="col-xs-4 p-l-0 p-r-10">
+                                <input class="form-control bor-bottom text-right" id="iptSaleValue" value="0" data-method="0" />
+                            </div>
+                            <div class="col-xs-4 no-padding text-right">
+                                <button class="btn btn-sm btn-primary" id="btnVND" onclick="changeSaleMethod(0)">VND</button>
+                                <button class="btn btn-sm" id="btnPercent" onclick="changeSaleMethod(1)">%</button>
+                            </div>
+                        </div>
+
+                        <!--Thu khác-->
+                        <div class="col-xs-12 m-t-10">
+                            <div class="col-xs-4 no-padding">
+                                <p class="p-t-8">Thu khác<p />
+                            </div>
+                            <div class="col-xs-8 no-padding">
+                                <input data-value="0" data-text="" id="iptRevenues" class="form-control bor-bottom my-form-control" />
+                            </div>
+                        </div>
+
+                        <!--Khách cần trả-->
+                        <div class="col-xs-12 m-t-10">
+                            <div class="col-xs-5 no-padding">
+                                <p class="p-t-8">Khách cần trả<p />
+                            </div>
+                            <div class="col-xs-7 no-padding text-right text-primary text-bold">
+                                <p class="f18 p-t-5" id="pTotalInvoice" data-value="0">0</p>
+                            </div>
+                        </div>
+
+                        <!--Ghi chú-->
+                        <div class="col-xs-12 m-t-10 m-b-5">
+                            <textarea id="txtInvoiceNote" style="border:none; padding:0;color: #9a9393;font-style: italic;" rows="3" class="form-control" placeholder="Ghi chú"></textarea>
+                        </div>
+
+                        <!--Nút thanh toán-->
+                        <div class="col-xs-12 m-b-10 btn-pay">
+                            <button id="btnPaymentInvoice" class="btn btn-flat w-p-100 btn-lg btn-primary">Thanh toán (F9)</button>
+                        </div>
+
+                        <!--Nút lưu tạm-->
+                        <div class="col-xs-12 m-b-10 btn-pay">
+                            <button id="btnSaveInvoice" class="btn btn-flat w-p-100 btn-lg btn-default">Lưu tạm (F10)</button>
+                        </div>
+
+                        <!--Nút thanh toán lại-->
+                        <div class="col-xs-12 m-b-10 btn-repay hidden">
+                            <button id="btnRePaymentInvoice" class="btn btn-flat w-p-100 btn-lg btn-primary">Thanh toán</button>
+                        </div>
+
+                        <!--Nút lưu tạm lại-->
+                        <div class="col-xs-12 m-b-10 btn-repay hidden">
+                            <button id="btnReSaveInvoice" class="btn btn-flat w-p-100 btn-lg btn-success">Lưu tạm lại</button>
+                        </div>
+
+                        <!--Nút hủy thanh toán lại-->
+                        <div class="col-xs-12 m-b-10 btn-repay hidden">
+                            <button onClick="window.location.reload();" class="btn btn-flat w-p-100 btn-lg btn-default">Hủy thanh toán</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            @Html.Action("SaleInvoicePartial", "Sale")
+        </div>
+    </section>
+</div>
+@Html.Partial("ReportSalePartial")
+@Html.Partial("PrintWaitingInvoice")
+@Html.Partial("RevenuesPartial")
+<footer class="main-footer">
+    <div class="pull-right hidden-xs">
+        <b>Version</b> 1.0
+    </div>
+    <strong>Copyright © 2019 <a href="#">kunanh</a></strong>
+</footer>
+@section Scripts{
+    <script>
+        $(function () {
+            initSelectSale();
+            $('#iptSaleValue').autoNumeric('init', { aSep: ',', lZero: 'deny', wEmpty: 'zero', vMin: 0, aPad: false, mRound: 'A' });
+        })
+
+        var _DEFAULT_IMAGE = '/Images/default-product.png';
+        //----------------------------------------------------------------------------INIT SELECT SALE
+        function initSelectSale() {
+            $('#selSale').select2({
+                ajax: {
+                    url: '/Sale/ProductSelect',
+                    type: 'post',
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    delay: 200,
+                    data: function (params) {
+                        return JSON.stringify({
+                            Search: params.term
+                        });
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: data,
+                        };
+                    },
+                    cache: true
+                },
+                closeOnSelect: false,
+                lang: 'vi',
+                width: '100%',
+                placeholder: 'Nhập mã hoặc tên sản phẩm...',
+                escapeMarkup: function (markup) {
+                    return markup;
+                },
+                minimumInputLength: 1,
+                templateResult: function (repo) {
+                    if (repo.loading) {
+                        return repo.text;
+                    }
+                    let markup = ` <div class="row">
+                                                                        <div class="user-block no-padding no-margin">
+                                                                            <img class="img-circle m-l-15" src="${repo.ProductImage == '' ? _DEFAULT_IMAGE : repo.ProductImage}">
+                                                                            <span class="username p-l-18">${repo.text} </span>
+                                                                            <span class="description p-l-18" style="font-size:14px;">${repo.ProductPrice.toLocaleString('en-us')} đ</span>
+                                                                        </div>
+                                                                    </div>`;
+                    return markup;
+                },
+            });
+        }
+
+        //---------------------------------------------------------------------------------------SEARCH VÀ BẢNG SẢN PHẨM
+
+        //sự kiện chọn sản phẩm
+        $('#selSale').on('select2:select', function (item) {
+            let productId = item.params.data.id;
+            let productCode = item.params.data.ProductCode;
+            let productName = item.params.data.text;
+            let productImage = item.params.data.ProductImage;
+            let productPrice = item.params.data.ProductPrice;
+
+            //kiểm tra sp có trong bảng đã chọn chưa, nếu có +1 số lượng, chưa thì thêm vào danh sách
+            if (existProduct(productId) > 0) {
+                increaseProduct(productId);
+            } else {
+                let rowIndex = $('#tbdProduct tr').length + 1;
+                //render html sản phẩm đã chọn
+                let html = `<tr data-id="${productId}">
+                                                            <td class="text-center text-muted ver-mid">${rowIndex}</td>
+                                                            <td>
+                                                                <div class="user-block">
+                                                                    <img class="img-circle" src="${productImage == '' ? '/Images/default-product.png' : productImage}" />
+                                                                    <span class="username" style="font-weight: 100">${productName}</span>
+                                                                    <span class="description">${productCode}</span>
+                                                                </div>
+                                                            </td>
+                                                            <td class="ver-mid w-p-15">
+                                                                <input class="form-control text-right w-p-40 bor-bottom product-quantity" value="1" />
+                                                            </td>
+                                                            <td class="ver-mid w-p-15">
+                                                                <input class="form-control autonumeric text-right w-p-80 bor-bottom product-price" value="${productPrice}" />
+                                                            </td>
+                                                            <td class="ver-mid text-bold text-right w-p-15 product-total-price" data-total="${productPrice}">${productPrice.toLocaleString('en-us')}</td>
+                                                            <td class="ver-mid hand w-50 text-right product-remove"><i class="text-muted fa fa-close"></i></td>
+                                                        </tr>`;
+                $('#tbdProduct').append(html);
+                $(".product-quantity").inputFilter(function (value) {
+                    return /^\d*$/.test(value) && (value === "" || value <= 100);
+                });
+                $('.autonumeric').autoNumeric('init', { aSep: ',', lZero: 'deny', wEmpty: 'zero', vMin: 0, aPad: false, mRound: 'A' });
+                bindEvent();
+            }
+            setTotalProductPrice(); //tỉnh tổng hóa đơn
+
+            //clear search
+            $('#selSale').val('').trigger('change');
+            $('.select2-results__options').find('li').remove(); // Remove các Option Result Select2
+            $('input.select2-search__field').val(''); // Clear Input Search Select2
+
+        })
+
+        //hàm kiểm tra xem 1 sản phẩm có tồn tại trong bảng sản phẩm chưa
+        function existProduct(productId) {
+            return $('#tbdProduct').find('tr[data-id="' + productId + '"]').length;
+        }
+
+        //hàm ++ số lượng sản phẩm trong bảng
+        function increaseProduct(productId) {
+            let productRow = $('#tbdProduct').find('tr[data-id="' + productId + '"]');
+            let quantity = productRow.find('.product-quantity').val();
+            productRow.find('.product-quantity').val(parseInt(quantity) + 1).trigger('keyup');
+        }
+
+        //hàm binding các sự kiện trên bảng sản phẩm vừa render ra
+        function bindEvent() {
+            //thay đổi số lượng => thay đổi tổng tiền sp => tổng tiền hóa đơn
+            $('.product-quantity').on('keyup', function () {
+                let quantity = $(this).val();
+                let price = $(this).closest('tr').find('.product-price').autoNumeric('get');
+                let total = parseInt(quantity) * parseInt(price);
+                let tdProductTotal = $(this).closest('tr').find('.product-total-price');
+                tdProductTotal.text(total.toLocaleString('en-us'));
+                tdProductTotal.removeAttr('data-total').attr('data-total', total);
+                setTotalProductPrice();
+            })
+
+            //thay đổi giá => thay đổi tổng tiền sản phẩm => tổng tiền hóa đơn
+            $('.product-price').on('keyup', function () {
+                let price = $(this).autoNumeric('get');
+                let quantity = $(this).closest('tr').find('.product-quantity').val();
+                let total = parseInt(quantity) * parseInt(price);
+                let tdProductTotal = $(this).closest('tr').find('.product-total-price');
+                tdProductTotal.text(total.toLocaleString('en-us'));
+                tdProductTotal.removeAttr('data-total').attr('data-total', total);
+                setTotalProductPrice();
+            })
+
+            //xóa sản phẩm => thay đổi tổng tiền hóa đơn
+            $('.product-remove').on('click', function () {
+                $(this).closest('tr').remove();
+                setTotalProductPrice();
+            })
+        }
+
+        //hàm tính tổng tiền hóa đơn
+        function setTotalProductPrice() {
+            //reset giảm giá và thu khác về 0
+            $('#iptSaleValue').autoNumeric('set', 0).trigger('keyup');
+            $('#iptRevenues').val('');
+            $('#iptRevenues').removeAttr('data-value').attr('data-value', 0);
+            $('#iptRevenues').removeAttr('data-text').attr('data-text', '');
+
+            let total = 0;
+            $.each($('#tbdProduct > tr > td.product-total-price'), function () {
+                total += parseInt($(this).attr('data-total'));
+            })
+            $('#pTotalInvoice, #pTotalProductPrice').attr('data-value', total);
+            $('#pTotalInvoice, #pTotalProductPrice').text(total.toLocaleString('en-us'));
+
+        }
+
+        //---------------------------------------------------------------------------------------THÔNG TIN HÓA ĐƠN
+
+        //sự kiện thay đổi chọn hình thức khuyến mãi VND/ %
+        function changeSaleMethod(type) {
+            if (type == 0) {
+                $('#btnVND').addClass('btn-primary');
+                $('#btnPercent').removeClass('btn-primary');
+                $('#iptSaleValue').removeAttr('data-method').attr('data-method', 0);
+                $('#iptSaleValue').autoNumeric('destroy').val(0);
+                $('#iptSaleValue').autoNumeric('init', { aSep: ',', lZero: 'deny', wEmpty: 'zero', vMin: 0, aPad: false, mRound: 'A' });
+            } else {
+                $('#btnVND').removeClass('btn-primary');
+                $('#btnPercent').addClass('btn-primary');
+                $('#iptSaleValue').removeAttr('data-method').attr('data-method', 1);
+                $('#iptSaleValue').autoNumeric('destroy').val(0);
+                $('#iptSaleValue').autoNumeric('init', { aSep: ',', lZero: 'deny', wEmpty: 'zero', vMin: 0, vMax: 100, aPad: false, mRound: 'A' });
+            }
+            $('#iptSaleValue').on('keyup', function () {
+                applySaleMethod();
+            })
+            let totalProductPrice = parseInt($('#pTotalProductPrice').attr('data-value'));
+            let revenues = parseInt($('#iptRevenues').attr('data-value'));
+            totalProductPrice += revenues;
+            $('#pTotalInvoice').attr('data-value', totalProductPrice);
+            $('#pTotalInvoice').text(totalProductPrice.toLocaleString('en-us'));
+        }
+
+        $('#iptSaleValue').on('keyup', function () {
+            applySaleMethod();
+        })
+
+        //sự kiện thêm thu khác
+        $('#iptRevenues').on('click', function () {
+            let value = $(this).attr('data-value');
+            if (value == 0) {
+                $('#modalRevenuesAdd').modal('show');
+            } else {
+                let value = $('#iptRevenues').attr('data-value');
+                let note = $('#iptRevenues').attr('data-text');
+                $('#iptRevenuesValueEdit').autoNumeric('set', value);
+                $('#txtRevenuesNoteEdit').val(note);
+                $('#modalRevenuesEdit').modal('show');
+            }
+        })
+        function addRevenues() {
+            let value = $('#iptRevenuesValueAdd').autoNumeric('get');
+            let note = $('#txtRevenuesNoteAdd').val();
+
+            if (value <= 0 || value == '') {
+                alertify.error('Vui lòng nhập phí thu khác');
+                $('#iptRevenuesValueAdd').focus();
+                return;
+            }
+            if (note == '') {
+                alertify.error('Vui lòng nhập mô tả thu khác');
+                $('#txtRevenuesNoteAdd').focus();
+                return;
+            }
+            let revenues = parseInt(value).toLocaleString('en-us') + ' - ' + note;
+            $('#iptRevenues').val(revenues);
+            $('#iptRevenues').removeAttr('data-value, data-text');
+            $('#iptRevenues').attr('data-value', value);
+            $('#iptRevenues').attr('data-text', note);
+            applyRevenues(parseInt(value));
+            $('#modalRevenuesAdd').modal('hide');
+        }
+        function updateRevenues() {
+            let value = $('#iptRevenuesValueEdit').autoNumeric('get');
+            let note = $('#txtRevenuesNoteEdit').val();
+
+            if (value <= 0 || value == '') {
+                alertify.error('Vui lòng nhập phí thu khác');
+                $('#iptRevenuesValueEdit').focus();
+                return;
+            }
+            if (note == '') {
+                alertify.error('Vui lòng nhập mô tả thu khác');
+                $('#txtRevenuesNoteEdit').focus();
+                return;
+            }
+            let revenues = parseInt(value).toLocaleString('en-us') + ' - ' + note;
+            $('#iptRevenues').val(revenues);
+            $('#iptRevenues').removeAttr('data-value, data-text');
+            $('#iptRevenues').attr('data-value', value);
+            $('#iptRevenues').attr('data-text', note);
+            applyRevenues(parseInt(value));
+            $('#modalRevenuesEdit').modal('hide');
+        }
+
+        //sự kiện tính tổng hóa đơn khi thêm thu khác
+        function applyRevenues(value) {
+            let totalInvoice = parseInt($('#pTotalInvoice').attr('data-value'));
+            totalInvoice += value;
+            $('#pTotalInvoice').removeAttr('data-value').attr('data-value', totalInvoice);
+            $('#pTotalInvoice').text(parseInt(totalInvoice).toLocaleString('en-us'));
+        }
+
+        //sự kiện tính tổng hóa đơn khi giảm giá
+        function applySaleMethod() {
+            let saleValue = $('#iptSaleValue').autoNumeric('get');
+            let saleMethod = $('#iptSaleValue').attr('data-method'); //0 is vnd, 1 is %
+            let totalProductPrice = $('#pTotalProductPrice').attr('data-value');
+            let revenues = $('#iptRevenues').attr('data-value');
+            let totalInvoice = 0;
+            if (saleMethod == '0') {
+                totalInvoice = parseInt(totalProductPrice) - parseInt(saleValue) + parseInt(revenues);
+            } else {
+                totalInvoice = parseInt(totalProductPrice) - (parseInt(totalProductPrice) * (parseInt(saleValue) / 100)) + parseInt(revenues);
+            }
+            $('#pTotalInvoice').attr('data-value', totalInvoice);
+            $('#pTotalInvoice').text(totalInvoice.toLocaleString('en-us'));
+        }
+        //----------------------------------------------------------------------------------------THANH TOÁN HÓA ĐƠN
+        $('#btnPaymentInvoice').on('click', function () {
+            let countProduct = $('#tbdProduct tr').length;
+            if (countProduct == 0) {
+                alertify.error('Không có sản phẩm nào được chọn');
+                $('#selSale').select2('open');
+            } else {
+                paymentInvoice();
+            }
+        })
+
+        //lưu thông tin hóa đơn
+        function paymentInvoice() {
+            showWaiting();
+            let customerId = ''; //chưa xong
+            let totalPrice = $('#pTotalProductPrice').attr('data-value');
+            let saleValue = $('#iptSaleValue').val();
+            let saleType = 0;
+            if ($('#btnPercent').hasClass('btn-primary')) { saleType = 1 };
+            let otherFeeValue = $('#iptRevenues').attr('data-value');
+            let otherFeeDescription = $('#iptRevenues').attr('data-text');
+            let invoiceValue = $('#pTotalInvoice').attr('data-value');
+            let invoiceNote = $('#txtInvoiceNote').val();
+            let dtInvoice = [];
+            $.each($('#tbdProduct tr'), function (index, item) {
+                dtInvoice.push({
+                    productId: $(this).attr('data-id'),
+                    quantity: $(this).find('.product-quantity').val(),
+                    salePrice: $(this).find('.product-price').autoNumeric('get')
+                })
+            })
+
+            let d = {
+                CustomerId: customerId,
+                TotalPrice: totalPrice,
+                SaleValue: saleValue,
+                SaleType: saleType,
+                OtherFeeValue: otherFeeValue,
+                OtherFeeDescription: otherFeeDescription,
+                InvoiceValue: invoiceValue,
+                InvoiceNote: invoiceNote,
+                DtInvoice: JSON.stringify(dtInvoice)
+            }
+            $.post('/Sale/InvoicePayment', d, function (data) {
+                if (data) {
+                    alertify.confirm('Thanh toán thành công, bạn có muốn in hóa đơn không ? ', function () {
+                        data.every(item => {
+                            printInvoice(item.IdInvoice);
+                        })
+                    }, function () {
+                        window.location.reload();
+                    });
+                } else {
+                    alertify.error('Đã có lỗi xảy ra khi thanh toán hóa đơn. Mã lỗi: ' + data);
+                }
+                closeWaiting();
+            }, 'json')
+        }
+
+        //----------------------------------------------------------------------------------------LƯU TẠM HÓA ĐƠN
+        $('#btnSaveInvoice').on('click', function () {
+            let countProduct = $('#tbdProduct tr').length;
+            if (countProduct == 0) {
+                alertify.error('Không có sản phẩm nào được chọn');
+                $('#selSale').select2('open');
+            } else {
+                saveInvoice();
+            }
+        })
+
+        function saveInvoice() {
+            showWaiting();
+            let customerId = ''; //chưa xong
+            let totalPrice = $('#pTotalProductPrice').attr('data-value');
+            let saleValue = $('#iptSaleValue').val();
+            let saleType = 0;
+            if ($('#btnPercent').hasClass('btn-primary')) { saleType = 1 };
+            let otherFeeValue = $('#iptRevenues').attr('data-value');
+            let otherFeeDescription = $('#iptRevenues').attr('data-text');
+            let invoiceValue = $('#pTotalInvoice').attr('data-value');
+            let invoiceNote = $('#txtInvoiceNote').val();
+            let dtInvoice = [];
+            $.each($('#tbdProduct tr'), function (index, item) {
+                dtInvoice.push({
+                    productId: $(this).attr('data-id'),
+                    quantity: $(this).find('.product-quantity').val(),
+                    salePrice: $(this).find('.product-price').autoNumeric('get')
+                })
+            })
+
+            let d = {
+                CustomerId: customerId,
+                TotalPrice: totalPrice,
+                SaleValue: saleValue,
+                SaleType: saleType,
+                OtherFeeValue: otherFeeValue,
+                OtherFeeDescription: otherFeeDescription,
+                InvoiceValue: invoiceValue,
+                InvoiceNote: invoiceNote,
+                DtInvoice: JSON.stringify(dtInvoice)
+            }
+            $.post('/Sale/InvoiceWaiting', d, function (data) {
+                if (data) {
+                    data.every(item => {
+                        $('#sppNameWaiting').text('PHIẾU ORDER');
+                        printInvoiceWaiting(item.IdInvoice);
+                    })
+                } else {
+                    alertify.error('Đã có lỗi xảy ra khi thanh toán hóa đơn. Mã lỗi: ' + data);
+                }
+                closeWaiting();
+            }, 'json')
+        }
+
+        //---------------------------------------------------------------------------------------THANH TOÁN LẠI HÓA ĐƠN ĐÃ LƯU TẠM
+        $('.waiting-invoice').on('click', function () {
+            let invoice = $(this);
+            let invoiceId = invoice.attr('data-id');
+
+            alertify.confirm('Bạn có chắc chắn muốn chọn hóa đơn này ?', function () {
+                showWaiting();
+                //lấy thông tin hóa đơn tạm vừa chọn và fill thông tin vào table
+                $.get('/Sale/SelectId', {
+                    InvoiceId: invoiceId
+                }, function (data) {
+                    let Invoice = JSON.parse(data.Invoice);
+                    let Product = JSON.parse(data.Product);
+
+                    //fill dữ liệu vào thông tin hóa đơn
+                    Invoice.every(item => {
+                        $('#hInvoiceHeader').text('HÓA ĐƠN ' + item.InvoiceCode);
+                        $('#iptInvoiceTime').val(item.CreateDate);
+                        $('#pTotalProductPrice').text(item.TotalPrice.toLocaleString('en-us'));
+                        $('#pTotalProductPrice').removeAttr('data-value').attr('data-value', item.TotalPrice);
+                        $('#pTotalInvoice').text(item.InvoiceValue.toLocaleString('en-us'));
+                        $('#pTotalInvoice').removeAttr('data-value').attr('data-value', item.InvoiceValue);
+                        if (item.SaleType == 0) {
+                            $('#btnVND').addClass('btn-primary');
+                            $('#btnPercent').removeClass('btn-primary');
+                        } else {
+                            $('#btnVND').removeClass('btn-primary');
+                            $('#btnPercent').addClass('btn-primary');
+                        }
+                        $('#iptSaleValue').autoNumeric('set', item.SaleValue);
+                        $('#pTotalInvoice').removeAttr('data-method').attr('data-method', item.SaleType);
+                        if (item.OtherFeeValue != 0) {
+                            $('#iptRevenues').val(item.OtherFeeValue.toLocaleString('en-us') + ' - ' + item.OtherFeeDescription);
+                            $('#iptRevenues').removeAttr('data-value').attr('data-value', item.OtherFeeValue);
+                            $('#iptRevenues').removeAttr('data-text').attr('data-text', item.OtherFeeDescription);
+                        }
+                        $('#txtInvoiceNote').val(item.InvoiceNote);
+                    })
+                    //fill dữ liệu vào bảng sản phẩm đã chọn
+                    let html = Product.map((item, index) => {
+                        return `<tr data-id="${item.ProductId}">
+                                                <td class="text-center text-muted ver-mid">${index + 1}</td>
+                                                <td>
+                                                    <div class="user-block">
+                                                        <img class="img-circle" src="${item.ProductImage == '' ? '/Images/default-product.png' : item.ProductImage}" />
+                                                        <span class="username" style="font-weight: 100">${item.ProductName}</span>
+                                                        <span class="description">${item.ProductCode}</span>
+                                                    </div>
+                                                </td>
+                                                <td class="ver-mid w-p-15">
+                                                    <input class="form-control text-right w-p-40 bor-bottom product-quantity" value="${item.ProductQuantity}" />
+                                                </td>
+                                                <td class="ver-mid w-p-15">
+                                                    <input class="form-control autonumeric text-right w-p-80 bor-bottom product-price" value="${item.SalePrice}" />
+                                                </td>
+                                                <td class="ver-mid text-bold text-right w-p-15 product-total-price" data-total="${item.TotalProductPrice}">${item.TotalProductPrice.toLocaleString('en-us')}</td>
+                                                <td class="ver-mid hand w-50 text-right product-remove"><i class="text-muted fa fa-close"></i></td>
+                                            </tr>`;
+                    }).join('');
+
+                    $('#tbdProduct').html(html);
+                    $(".product-quantity").inputFilter(function (value) {
+                        return /^\d*$/.test(value) && (value === "" || value <= 100);
+                    });
+                    $('.autonumeric').autoNumeric('init', { aSep: ',', lZero: 'deny', wEmpty: 'zero', vMin: 0, aPad: false, mRound: 'A' });
+                    bindEvent();
+                }, 'json');
+
+                //xóa dòng hóa đơn đã lưu tạm đi
+                let countWaitingInvoice = $('#countWaitingInvoice').text();
+                $('#countWaitingInvoice').text(parseInt(countWaitingInvoice) - 1);
+                invoice.remove();
+
+                //set lại trạng thái ẩn hiện các button thanh toán
+                $('.btn-repay').removeClass('hidden');
+                $('.btn-pay').addClass('hidden');
+                $('#btnRePaymentInvoice').removeAttr('onclick').attr('onclick', `rePayInvoice('${invoiceId}')`);
+                $('#btnReSaveInvoice').removeAttr('onclick').attr('onclick', `reSaveInvoice('${invoiceId}')`);
+                closeWaiting();
+            })
+        })
+
+        function rePayInvoice(invoiceId) {
+            showWaiting();
+            let customerId = ''; //chưa xong
+            let totalPrice = $('#pTotalProductPrice').attr('data-value');
+            let saleValue = $('#iptSaleValue').val();
+            let saleType = 0;
+            if ($('#btnPercent').hasClass('btn-primary')) { saleType = 1 };
+            let otherFeeValue = $('#iptRevenues').attr('data-value');
+            let otherFeeDescription = $('#iptRevenues').attr('data-text');
+            let invoiceValue = $('#pTotalInvoice').attr('data-value');
+            let invoiceNote = $('#txtInvoiceNote').val();
+            let dtInvoice = [];
+            $.each($('#tbdProduct tr'), function (index, item) {
+                dtInvoice.push({
+                    productId: $(this).attr('data-id'),
+                    quantity: $(this).find('.product-quantity').val(),
+                    salePrice: $(this).find('.product-price').autoNumeric('get')
+                })
+            })
+
+            let d = {
+                InvoiceId: invoiceId,
+                CustomerId: customerId,
+                TotalPrice: totalPrice,
+                SaleValue: saleValue,
+                SaleType: saleType,
+                OtherFeeValue: otherFeeValue,
+                OtherFeeDescription: otherFeeDescription,
+                InvoiceValue: invoiceValue,
+                InvoiceNote: invoiceNote,
+                DtInvoice: JSON.stringify(dtInvoice)
+            }
+            $.post('/Sale/InvoiceRePayment', d, function (data) {
+                if (data) {
+                    alertify.confirm('Thanh toán thành công, bạn có muốn in hóa đơn không ? ', function () {
+                        data.every(item => {
+                            printInvoice(item.IdInvoice);
+                        })
+                    }, function () {
+                        window.location.reload();
+                    });
+                } else {
+                    alertify.error('Đã có lỗi xảy ra khi thanh toán hóa đơn. Mã lỗi: ' + data);
+                }
+                closeWaiting();
+            }, 'json')
+        }
+
+        //---------------------------------------------------------------------------------------LƯU TẠM LẠI HÓA ĐƠN ĐÃ LƯU TẠM
+        function reSaveInvoice(invoiceId) {
+            showWaiting();
+            let customerId = ''; //chưa xong
+            let totalPrice = $('#pTotalProductPrice').attr('data-value');
+            let saleValue = $('#iptSaleValue').val();
+            let saleType = 0;
+            if ($('#btnPercent').hasClass('btn-primary')) { saleType = 1 };
+            let otherFeeValue = $('#iptRevenues').attr('data-value');
+            let otherFeeDescription = $('#iptRevenues').attr('data-text');
+            let invoiceValue = $('#pTotalInvoice').attr('data-value');
+            let invoiceNote = $('#txtInvoiceNote').val();
+            let dtInvoice = [];
+            $.each($('#tbdProduct tr'), function (index, item) {
+                dtInvoice.push({
+                    productId: $(this).attr('data-id'),
+                    quantity: $(this).find('.product-quantity').val(),
+                    salePrice: $(this).find('.product-price').autoNumeric('get')
+                })
+            })
+
+            let d = {
+                InvoiceId: invoiceId,
+                CustomerId: customerId,
+                TotalPrice: totalPrice,
+                SaleValue: saleValue,
+                SaleType: saleType,
+                OtherFeeValue: otherFeeValue,
+                OtherFeeDescription: otherFeeDescription,
+                InvoiceValue: invoiceValue,
+                InvoiceNote: invoiceNote,
+                DtInvoice: JSON.stringify(dtInvoice)
+            }
+            $.post('/Sale/InvoiceReWaiting', d, function (data) {
+                if (data) {
+                    alertify.success('Cập nhật thành công');
+                    alertify.confirm('Bạn có muốn in lại phiếu Order của hóa đơn này ? ', function () {
+                        $('#sppNameWaiting').text('PHIẾU ORDER (M)');
+                        data.every(item => {
+                            printInvoiceWaiting(item.IdInvoice);
+                        })
+                    }, function () {
+                        window.location.reload();
+                    })
+                } else {
+                    alertify.error('Đã có lỗi xảy ra khi thanh toán hóa đơn. Mã lỗi: ' + data);
+                }
+                closeWaiting();
+            }, 'json')
+        }
+
+        //---------------------------------------------------------------------------------------XEM BÁO CÁO BÁN HÀNG HÔM NAY
+        function viewReportSale() {
+            $.get('/Sale/SelectReport', function (data) {
+                let totalPrice = 0;
+                let totalSale = 0;
+                let totalRevenus = 0;
+                let totalInvoice = 0;
+                let html = data.map((item, index) => {
+                    totalPrice += item.TotalPrice;
+                    totalSale += item.SaleValue;
+                    totalRevenus += item.OtherFeeValue;
+                    totalInvoice += item.InvoiceValue;
+                    return ` <tr>
+                                                <td class="text-center text-muted">${index + 1}</td>
+                                                <td>${item.DateCreate}</td>
+                                                <td>${item.InvoiceCode}</td>
+                                                <td class="text-right">${item.TotalPrice.toLocaleString('en-us')}</td>
+                                                <td class="text-right">${item.SaleValue.toLocaleString('en-us')}</td>
+                                                <td class="text-right">${item.OtherFeeValue.toLocaleString('en-us')}</td>
+                                                <td class="text-right">${item.InvoiceValue.toLocaleString('en-us')}</td>
+                                            </tr>`;
+                }).join('');
+                html += ` <tr class="text-bold">
+                                                <td class="text-center" colspan="3">Tổng</td>
+                                                <td class="text-right">${totalPrice.toLocaleString('en-us')}</td>
+                                                <td class="text-right">${totalSale.toLocaleString('en-us')}</td>
+                                                <td class="text-right">${totalRevenus.toLocaleString('en-us')}</td>
+                                                <td class="text-right">${totalInvoice.toLocaleString('en-us')}</td>
+                                            </tr>`;
+                $('#tbdReportSale').html(html);
+            }, 'json');
+
+            $('#modalReportSale').modal('show');
+        }
+
+        //---------------------------------------------------------------------------------------PHÍM TẮT
+        $(window).bind('keydown', function (e) {
+            let keyCode = e.keyCode || e.which;
+            if ((keyCode == 120 || e.key == 'F9') && !(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)) {
+                $('#btnPaymentInvoice').click();
+            } else if ((keyCode == 121 || e.key == 'F10') && !(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)) {
+                $('#btnSaveInvoice').click();
+            } else if ((keyCode == 113 || e.key == 'F2') && !(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)) {
+                $('#selSale').select2('open');
+            }
+        });
+
+        //---------------------------------------------------------------------------------------IN HÓA ĐƠN
+        //In hóa đơn thanh toán
+        function printInvoice(invoiceId) {
+            $.get('/Sale/SelectId', {
+                InvoiceId: invoiceId
+            }, function (data) {
+                let Invoice = JSON.parse(data.Invoice);
+                let Product = JSON.parse(data.Product);
+
+                //fill dữ liệu vào thông tin hóa đơn
+                Invoice.every(item => {
+                    $('#sppInvoiceCode').text(item.InvoiceCode);
+                    $('#sppInvoiceTime').text(item.CreateDate);
+                    $('#sppInvoiceNote').text(item.InvoiceNote);
+                    //tổng
+                    $('#printTotalPrice').text(item.TotalPrice.toLocaleString('en-us'));
+                    $('#printSaleValue').text(item.TotalSale.toLocaleString('en-us'));
+                    $('#printRevenues').text(item.OtherFeeValue.toLocaleString('en-us'));
+                    $('#printInvoiceValue').text(item.InvoiceValue.toLocaleString('en-us'));
+                })
+                //fill dữ liệu vào bảng sản phẩm đã chọn
+                let html = Product.map((item, index) => {
+                    return `<tr>
+                                    <td class="w-30 text-center">${index + 1}</td>
+                                    <td>${item.ProductName}</td>
+                                    <td class="text-right">${item.ProductQuantity}</td>
+                                    <td class="text-right">${item.TotalProductPrice.toLocaleString('en-us')}</td>
+                                </tr>`;
+                }).join('');
+
+                $('#tblpInvoice').html(html);
+            }, 'json');
+
+            $('#containerSalePrint').printThis({
+                beforePrint: function () {
+                    $('#containerSalePrint').removeClass("hidden");
+                }, afterPrint: function () {
+                    window.location.reload();
+                }
+            });
+        }
+
+        //In phiếu tạm tính
+        function printInvoiceWaiting(invoiceId) {
+            $.get('/Sale/SelectId', {
+                InvoiceId: invoiceId
+            }, function (data) {
+                let Invoice = JSON.parse(data.Invoice);
+                let Product = JSON.parse(data.Product);
+
+                //fill dữ liệu vào thông tin hóa đơn
+                Invoice.every(item => {
+                    $('#sppInvoiceCodeWaiting').text(item.InvoiceCode);
+                    $('#sppInvoiceTimeWaiting').text(item.CreateDate);
+                    $('#sppInvoiceNoteWaiting').text(item.InvoiceNote);
+                })
+                //fill dữ liệu vào bảng sản phẩm đã chọn
+                let html = Product.map((item, index) => {
+                    return `<tr>
+                                    <td class="w-30 text-center">${index + 1}</td>
+                                    <td>${item.ProductName}</td>
+                                    <td class="text-right">${item.ProductQuantity}</td>
+                                </tr>`;
+                }).join('');
+
+                $('#tblpInvoiceWaiting').html(html);
+            }, 'json');
+
+            $('#containerSalePrintWaiting').printThis({
+                beforePrint: function () {
+                    $('#containerSalePrintWaiting').removeClass("hidden");
+                }, afterPrint: function () {
+                    window.location.reload();
+                }
+            });
+        }
+
+    </script>
+}
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,149 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Đăng nhập vào hệ thống</title>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link href="/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="/Content/font-awesome.min.css" rel="stylesheet" />
+    <link href="/Content/dist/css/AdminLTE.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+    <link href="/Content/style.css" rel="stylesheet" />
+    <link href="/Content/utils.css" rel="stylesheet" />
+    <style>
+        .boxshadow {
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        }
+
+        .textshadow {
+            text-shadow: 2px 2px 4px #ffffff;
+        }
+
+        #page {
+            background-image: url(/Images/iron_cover.jpg);
+            background-position: center;
+            background-size: auto;
+            background-repeat: repeat-x;
+        }
+
+    </style>
+</head>
+<body id="page" class="hold-transition login-page">
+    <div class="login-box">
+        <div class="login-logo">
+            <a href="/" class="textshadow"><b>Iron coffee</b> System</a>
+        </div>
+        <div class="login-box-body boxshadow">
+            <div class="text-center">
+                <img src="~/Images/Logo/b53a0f56-523f-4fcc-bb10-5c45c459c42d.jpg" style="width:50px; height:50px; margin-bottom: 20px" />
+            </div>
+            @Html.AntiForgeryToken()
+            <div class="form-group has-feedback">
+                <input id="user" type="text" class="form-control" placeholder="Tài khoản" autofocus autocomplete="off">
+                <span class="glyphicon glyphicon-user form-control-feedback"></span>
+            </div>
+            <div class="form-group has-feedback">
+                <input id="pwd" type="password" class="form-control" placeholder="Mật khẩu" autocomplete="off">
+                <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <button id="btnLogin" type="button" class="btn btn-primary btn-block btn-flat">Đăng nhập</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/Scripts/jquery-3.4.1.min.js"></script>
+    <script src="/Scripts/bootstrap.min.js"></script>
+    <script src="/Scripts/waitMe.min.js"></script>
+    <script>
+        window.onload = () => {
+            document.getElementById('btnLogin').onclick = () => {
+                login();
+            }
+
+            document.getElementById('user').onkeydown = e => {
+                if (e.keyCode === 13) {
+                    login();
+                }
+            }
+
+            document.getElementById('pwd').onkeydown = e => {
+                if (e.keyCode === 13) {
+                    login();
+                }
+            }
+        }
+
+        function login() {
+            let token = document.getElementsByName('__RequestVerificationToken')[0].value;
+            let elUser = document.getElementById('user');
+            let user = elUser.value.trim();
+            let elPwd = document.getElementById('pwd');
+            let pwd = elPwd.value;
+            if (user === '') {
+                alert('Vui lòng nhập tài khoản');
+                elUser.focus();
+                return;
+            }
+            else if (pwd === '') {
+                alert('Vui lòng nhập mật khẩu');
+                elPwd.focus();
+                return;
+            }
+            else {
+                let d = {
+                    UserName: user,
+                    Password: pwd
+                }
+                showWaiting();
+                $.ajax({
+                    type: "POST",
+                    url: "/login/login",
+                    data: { __RequestVerificationToken: token, model: d },
+                    dataType: "json",
+                    success: function (res) {
+                        if (res.Code === 1) {
+                            window.location.href = '/dashboard';
+                        }
+                        else {
+                            alert(res.Msg);
+                        }
+                        closeWaiting();
+                    }
+                });
+            }
+        }
+
+        function showWaiting(elementID) {
+            if (elementID == undefined) {
+                elementID = 'page';
+            }
+            $('#' + elementID).waitMe({
+                effect: 'ios',
+                text: '',
+                bg: 'rgba(255,255,255,0.0)',
+                color: '#4bac4d',
+                maxSize: 39,
+                waitTime: -1,
+                source: '',
+                textPos: '',
+                fontSize: '',
+                onClose: function (el) { }
+            });
+        }
+
+        function closeWaiting(elementID) {
+            if (elementID == undefined) {
+                elementID = 'page';
+            }
+            $('#' + elementID).waitMe("hide");
+        }
+    </script>
+</body>
+</html>

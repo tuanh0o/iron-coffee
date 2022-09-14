@@ -1,0 +1,110 @@
+﻿<!-- Modal Thêm phếu nhập kho -->
+<div id="modalWareLogAdd" class="modal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <input class="form-control text-bold" value="PHIẾU NHẬP PN###### - NHẬP HÀNG THƯỜNG XUYÊN"/>
+                </h4>
+            </div>
+            <div class="modal-body p-b-0">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="col-md-8 p-l-0">
+                            <div class="box box-solid">
+                                <div class="box-body no-padding">
+                                    <div class="col-md-12 m-t-10">
+                                        <div class="row">
+                                            <div class="table-reponsive">
+                                                <table class="table table-striped table-hover m-b-0">
+                                                    <thead>
+                                                        <tr style="height: 49px">
+                                                            <th class="text-center">#</th>
+                                                            <th>Hàng hóa</th>
+                                                            <th class="text-center">Giá nhập</th>
+                                                            <th class="text-center">SL</th>
+                                                            <th class="text-center">Thành tiền</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="tbdWareLogAdd">
+                                                        @*<tr>
+                                                            <td class="text-center">3</td>
+                                                            <td><span class="text-primary">LYM</span> - Đường đen trung quốc nấu chân trâu ...</td>
+                                                            <td class="text-right"> 2</td>
+                                                            <td class="text-right">42,000 đ</td>
+                                                        </tr>*@
+
+                                                        <tr id="rAddWare" class="text-center hand" onclick="addWareToWareLog()">
+                                                            <td colspan="5"><a>Thêm hàng hóa</a></td>
+                                                        </tr>
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 p-r-0">
+                            <div class="box box-solid" style="background:lavender">
+                                <div class="box-header with-border" style="height:60px">
+                                    <h4 class="text-center" id="hInvoiceHeader">THÔNG TIN PHIẾU NHẬP</h4>
+                                </div>
+                                <div class="box-body no-padding">
+                                    <!--Thời gian-->
+                                    <div class="col-xs-12 m-t-10">
+                                        <div class="col-xs-4 no-padding">
+                                            <p class="p-t-8">Thời gian</p>
+                                        </div>
+                                        <div class="col-xs-8 no-padding">
+                                            <input id="iptInvoiceTime" class="form-control my-form-control bor-bottom" value="09:53 26/07/2022" disabled="">
+                                        </div>
+                                    </div>
+
+                                    <!--NCC-->
+                                    <div class="col-xs-12 m-t-10">
+                                        <div class="col-xs-4 no-padding">
+                                            <p class="p-t-8">Nhà CC</p><p>
+                                            </p>
+                                        </div>
+                                        <div class="col-xs-8 no-padding">
+                                            <input class="form-control bor-bottom my-form-control" disabled="">
+                                        </div>
+                                    </div>
+
+                                    <!--Tổng tiền-->
+                                    <div class="col-xs-12 m-t-10">
+                                        <div class="col-xs-5 no-padding">
+                                            <p class="p-t-8">Tổng tiền hàng</p><p>
+                                            </p>
+                                        </div>
+                                        <div class="col-xs-7 no-padding text-right text-warning text-bold">
+                                            <p class="f18 p-t-5" id="pTotalInvoice" data-value="0">0</p>
+                                        </div>
+                                    </div>
+
+                                    <!--Ghi chú-->
+                                    <div class="col-xs-12 m-t-10 m-b-5">
+                                        <textarea id="txtInvoiceNote" style="border:none; padding:0;color: #9a9393;font-style: italic;" rows="5" class="form-control" placeholder="Ghi chú"></textarea>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="addProduct()" class="btn btn-warning m-w-100">Tạo phiếu nhập</button>
+                <button type="button" class="btn btn-default m-w-100" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+

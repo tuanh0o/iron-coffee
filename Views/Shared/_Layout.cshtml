@@ -1,0 +1,240 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="robots" content="NOINDEX, NOFOLLOW" />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>@ViewBag.Title</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <!-- Icon -->
+    <link rel="icon" type="image/x-icon" href="~/Images/favicon.ico" />
+    <!-- Bootstrap 3.3.7 -->
+    <link rel="stylesheet" href="/Content/bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link href="~/Content/bower_components/fontawesome-6.1.2/css/all.css" rel="stylesheet" />
+    <!-- iCheck for checkboxes and radio inputs -->
+    <link rel="stylesheet" href="/Content/plugins/iCheck/all.css">
+    <!-- Select2 -->
+    <link href="/Content/bower_components/css/select2.min.css" rel="stylesheet" />
+    <!-- AdminLTE Skins -->
+    <link rel="stylesheet" href="/Content/dist/css/skins/_all-skins.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="/Content/dist/css/AdminLTE.min.css">
+    <!-- AdminLTE Skins -->
+    <link rel="stylesheet" href="/Content/dist/css/skins/_all-skins.min.css">
+    <!-- Wait -->
+    <link href="/Content/waitMe.min.css" rel="stylesheet" />
+    <!-- Alertify -->
+    <link href="/Content/alertifyjs/alertify.min.css" rel="stylesheet" />
+    <link href="/Content/alertifyjs/themes/default.min.css" rel="stylesheet" />
+    <!-- bootstrap datepicker -->
+    <link rel="stylesheet" href="/Content/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">
+    <link href="~/Content/bower_components/daterangepicker/daterangepicker.css" rel="stylesheet" />
+    <!-- datatables -->
+    <link href="~/Content/bower_components/datatables/datatables.min.css" rel="stylesheet" />
+    <!-- Utils -->
+    <link href="/Content/utils.css" rel="stylesheet" />
+    <!-- Style -->
+    <link href="/Content/style.css" rel="stylesheet" />
+
+    <!-- Style section -->
+    @RenderSection("styles", false)
+</head>
+<body class="hold-transition skin-blue sidebar-collapse sidebar-mini" id="page">
+    <div class="wrapper">
+        <header class="main-header">
+            <a href="/dashboard" class="logo">
+                <span class="logo-mini"><i class="fa fa-home"></i></span>
+                <span class="logo-lg"><b>IRON</b> coffee & tea</span>
+            </a>
+            <nav class="navbar navbar-static-top">
+                <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </a>
+
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+                        <li class="hand">
+                            <a href="/sale">
+                                <i class="fa fa-shopping-cart m-r-3"></i>
+                                Bán hàng
+                            </a>
+                        </li>
+                        <li class="dropdown user user-menu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <img src="/Images/no-user.jpg" class="user-image" alt="User">
+                                <span class="hidden-xs">@Session["USER_ACCOUNT"]</span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <!-- User image -->
+                                <li class="user-header">
+                                    <img src="/Images/no-user.jpg" class="img-circle" alt="User">
+
+                                    <p>
+                                        @Session["USER_FULLNAME"]
+                                    </p>
+                                </li>
+
+                                <li class="user-footer">
+                                    <div class="pull-left">
+                                        <a href="#" class="btn btn-default btn-flat">Trang cá nhân</a>
+                                    </div>
+                                    <div class="pull-right">
+                                        <a onclick="onClickSignOut()" class="btn btn-default btn-flat">Đăng xuất</a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+        <!--LEFT SIDEBAR-->
+        <aside class="main-sidebar">
+            <section class="sidebar">
+                <div class="user-panel">
+                    <div class="pull-left image">
+                        <img src="~/Images/no-user.jpg" class="img-circle" alt="User">
+                    </div>
+                    <div class="pull-left info">
+                        <p>Quản trị viên</p>
+                        <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+                    </div>
+                </div>
+                <form action="#" method="get" class="sidebar-form">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" placeholder="Tìm kiếm...">
+                        <span class="input-group-btn">
+                            <button type="submit" name="search" id="search-btn" class="btn btn-flat">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </span>
+                    </div>
+                </form>
+                <ul class="sidebar-menu tree" data-widget="tree">
+                    <li class="header">MENU CHÍNH</li>
+                    <li class="active menu-left" data-mark="dashboard">
+                        <a href="/dashboard">
+                            <i class="fa fa-dashboard"></i>
+                            <span>Trang chủ</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-left" data-mark="invoice">
+                        <a href="/invoice">
+                            <i class="fa fa-file"></i>
+                            <span>Hóa đơn</span>
+                        </a>
+                    </li>
+                    <li class="menu-left" data-mark="employee">
+                        <a href="/employee">
+                            <i class="fa fa-user"></i>
+                            <span>Nhân viên</span>
+                            <span class="pull-right-container">
+                                @*<span class="label label-primary pull-right">0</span>*@
+                            </span>
+                        </a>
+                    </li>
+                    <li class="menu-left" data-mark="product">
+                        <a href="/product">
+                            <i class="fa fa-glass"></i>
+                            <span>Sản phẩm</span>
+                        </a>
+                    </li>
+                    <li class="menu-left" data-mark="warehouse">
+                        <a href="/warehouse">
+                            <i class="fa fa-cube"></i>
+                            <span>Quản lý kho</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-left">
+                        <a href="/report">
+                            <i class="fa fa-file-o"></i>
+                            <span>Báo cáo</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-left" data-mark="setting">
+                        <a href="/setting">
+                            <i class="fa fa-gears"></i> <span>Thiết lập</span>
+                        </a>
+                    </li>
+                </ul>
+            </section>
+        </aside>
+
+        <div class="content-wrapper">
+            @RenderBody()
+        </div>
+
+        <footer class="main-footer">
+            <div class="pull-right hidden-xs">
+                <b>Version</b> 1.0
+            </div>
+            <strong>Copyright © 2019 <a href="#">kunanh</a></strong>
+        </footer>
+    </div>
+
+    <!-- jQuery -->
+    <script src="/Content/bower_components/jquery/dist/jquery.min.js"></script>
+    <!-- jQuery UI -->
+    <script src="/Content/bower_components/jquery-ui/jquery-ui.min.js"></script>
+    <!-- Bootstrap 3.3.7 -->
+    <script src="/Content/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <!-- Plupload -->
+    <script src="/Scripts/plupload/js/plupload.full.min.js"></script>
+    <!-- Momentjs -->
+    <script src="~/Content/bower_components/daterangepicker/moment.min.js"></script>
+    <!-- Bootstrap Datepicker -->
+    <script src="/Content/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
+    <script src="~/Content/bower_components/daterangepicker/daterangepicker.js"></script>
+    <!-- Select2 -->
+    <script src="/Scripts/select2.min.js"></script>
+    <script src="/Scripts/i18n/vi.js"></script>
+    <!-- iCheck 1.0.1 -->
+    <script src="/Content/plugins/iCheck/icheck.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="/Content/dist/js/adminlte.min.js"></script>
+    <!-- Numberic -->
+    <script src="/Scripts/autoNumeric-1.9.41.js"></script>
+    <!--BootPage-->
+    <script src="/Scripts/jquery.twbsPagination.min.js"></script>
+    <!-- Wait -->
+    <script src="/Scripts/waitMe.min.js"></script>
+    <!-- Alertify -->
+    <script src="/Scripts/alertify.min.js"></script>
+    <!-- Utils -->
+    <script src="/Scripts/utils.js"></script>
+    <!-- Layout -->
+    <script src="/Scripts/layout.js"></script>
+    <!-- PrintThis -->
+    <script src="~/Scripts/PrintThis.js"></script>
+    <script src="/Scripts/Chart.min.js"></script>
+    <!-- datatables -->
+    <script src="~/Content/bower_components/datatables/datatables.min.js"></script>
+   
+    <!-- Script section -->
+    <script>
+        $(function () {
+        })
+        /* event sign out */
+        function onClickSignOut() {
+            $.post('/Login/LogOut', {}, function (data) {
+                window.location.href = '/';
+            }, 'html');
+        }
+    </script>
+    @RenderSection("scripts", false)
+</body>
+</html>

@@ -1,0 +1,397 @@
+﻿@media print {
+    .table >tr>td {
+        border: solid #909090 !important;
+        border-width: 1px 0 0 1px !important;
+    }
+
+    hr {
+        border: 1px solid #909090;
+    }
+}
+    
+.content {
+    padding: 0;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.report-background {
+    background-color: #909090;
+}
+
+.a4-fit-poitrait {
+    background: #fff;
+    width: 210mm;
+    min-height: 297mm;
+    margin: auto;
+    font-family: 'Times New Roman', Times, serif !important
+}
+
+    .a4-fit-poitrait > div > table > tbody > tr > td > h4, h5, h6 {
+        font-family: 'Times New Roman', Times, serif !important
+    }
+
+    .a4-fit-poitrait > .contentReport {
+        padding: 20px 30px;
+    }
+
+.img-logo {
+    display: block;
+    width: 100px;
+    height: 100px;
+    border: 1px solid #d2d6de;
+    margin: 0 auto;
+    vertical-align: middle;
+}
+
+.timeline-item {
+    margin-right: 0px !important;
+}
+
+.my-timeline-header {
+    font-size: 13px !important;
+    line-height: inherit !important;
+    padding-bottom: 0px !important
+}
+
+.my-timeline {
+    text-align: center;
+    width: 60%;
+    cursor: pointer;
+    color: #fff;
+    background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #3c8dbc), color-stop(1, #67a8ce)) !important;
+    background: -moz-linear-gradient(center bottom, #3c8dbc 0, #67a8ce 100%) !important;
+    background: -o-linear-gradient(#67a8ce, #3c8dbc) !important;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#67a8ce', endColorstr='#3c8dbc', GradientType=0) !important;
+}
+
+.p-l-12-imp {
+    padding-left: 12px !important
+}
+
+.p-r-12-imp {
+    padding-right: 12px !important
+}
+
+.user-block .description {
+    margin-top: 2px;
+}
+
+.user-block .username {
+    font-size: 15px;
+    font-weight: 100;
+}
+
+.waiting-invoice:hover {
+    background: #d9edf7;
+}
+
+.menu-shadow {
+    -webkit-box-shadow: 5px 15px 18px 8px rgba(183,183,189,1);
+    -moz-box-shadow: 5px 15px 18px 8px rgba(183,183,189,1);
+    box-shadow: 5px 15px 18px 8px rgba(183,183,189,1);
+}
+
+.navbar-nav > .notifications-menu > .dropdown-menu > li .menu, .navbar-nav > .messages-menu > .dropdown-menu > li .menu, .navbar-nav > .tasks-menu > .dropdown-menu > li .menu {
+    max-height: 500px !important;
+}
+
+.bor-bottom {
+    border: none;
+    border-bottom: 1px solid #ccc;
+    background: transparent;
+}
+
+.my-box {
+    height: 100vh;
+}
+
+.my-form-control[disabled] {
+    background-color: transparent;
+}
+
+.my-btn-sm {
+    padding: 5px 8px;
+    font-size: 8px;
+    background: #e6e6e6;
+}
+
+.text-transparent {
+    color: transparent;
+}
+
+.ver-mid {
+    vertical-align: middle !important;
+}
+
+.img-avatar {
+    display: block;
+    width: 120px;
+    height: 130px;
+    border: 1px solid #d2d6de;
+    margin: 0px auto;
+    vertical-align: middle;
+}
+
+.ul-edit > li:hover > a > span > i {
+    color: #3c8dbc !important;
+}
+
+.my-header {
+    float: left;
+    font-size: 25px;
+    margin: 0;
+    padding-top: 2px;
+}
+
+.line-height-14 {
+    line-height: 14px !important;
+}
+
+.my-h5 {
+    font-weight: bold;
+    margin-top: 7px;
+    margin-bottom: 7px;
+    font-size: 16px;
+}
+
+.box-header > .box-tools {
+    top: 14px;
+}
+
+body {
+    font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+}
+
+.img-category {
+    width: 120px;
+    height: 120px;
+    border: 1px solid #d2d6de;
+    margin: auto;
+    background-size: contain;
+}
+
+tr.rowClick[data-pop="false"] {
+    background-color: #d9edf7 !important;
+}
+
+.table-hover > tbody > tr:hover {
+    background-color: #d9edf7 !important;
+}
+
+.bg-white {
+    background-color: #fff;
+}
+
+.divPrint {
+    padding-top: 5px;
+    width: 100mm;
+    height: 50mm;
+    margin: 0px auto;
+    font-family: 'Times New Roman';
+}
+
+.no-border-rad {
+    border-radius: unset !important;
+}
+
+.img-user {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    object-fit: cover;
+}
+
+.td-image {
+    padding: 7px 0px !important;
+    width: 45px;
+}
+
+.p-image {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid #e2e2e2;
+    margin: auto;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.img-product {
+    width: 120px;
+    height: 120px;
+    border: 1px solid #d2d6de;
+    margin: auto;
+    background-size: contain;
+}
+
+.p-add-image {
+    width: 170px;
+    height: 170px;
+    border: 1px solid #e2e2e2;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.text-white {
+    color: white;
+}
+
+.tbl-image > tbody > tr > td, .tbl-image > thead > tr > th {
+    padding: 12px 8px;
+}
+
+.w-350 {
+    width: 350px;
+}
+
+.w-300 {
+    width: 300px;
+}
+
+.w-250 {
+    width: 250px;
+}
+
+.w-200 {
+    width: 200px;
+}
+
+.border-bot {
+    border: 0px;
+    border-bottom: 1px solid #ccc;
+}
+
+.w-p-15 {
+    width: 15%;
+}
+
+.w-p-25 {
+    width: 25%;
+}
+
+.w-p-10 {
+    width: 10%;
+}
+
+.w-p-20 {
+    width: 20%;
+}
+
+.w-p-30 {
+    width: 30%;
+}
+
+.w-p-40 {
+    width: 40%;
+}
+
+.w-p-50 {
+    width: 50%;
+}
+
+.w-p-60 {
+    width: 60%;
+}
+
+.w-p-70 {
+    width: 70%;
+}
+
+.w-p-80 {
+    width: 80%;
+}
+
+.w-p-90 {
+    width: 90%;
+}
+
+.w-p-100 {
+    width: 100%;
+}
+
+.f12 {
+    font-size: 12px;
+}
+
+.f13 {
+    font-size: 13px;
+}
+
+.f14 {
+    font-size: 14px;
+}
+
+.f15 {
+    font-size: 15px;
+}
+
+.f16 {
+    font-size: 16px;
+}
+
+.f17 {
+    font-size: 17px;
+}
+
+.f18 {
+    font-size: 18px;
+}
+
+.f19 {
+    font-size: 19px;
+}
+
+.f20 {
+    font-size: 20px;
+}
+
+.hand {
+    cursor: pointer;
+}
+
+.p-l-3-imp {
+    padding-left: 3px !important;
+}
+
+.p-10 {
+    padding: 10px;
+}
+
+.hover:hover {
+    background-color: #f3f0f0;
+}
+
+.w-1200 {
+    width: 1200px;
+}
+
+.w-1500 {
+    width: 1500px;
+}
+
+/*<!-- Mobile -->*/
+@media only screen and (max-width: 768px) {
+    .xs-p-l-0 {
+        padding-left: 0px;
+    }
+
+    .my-box {
+        height: unset;
+    }
+
+    .xs-text-right {
+        text-align: right;
+    }
+
+    .xs-m-t-5 {
+        margin-top: 5px;
+    }
+
+    .xs-m-t-8 {
+        margin-top: 8px;
+    }
+}

@@ -1,0 +1,101 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="robots" content="NOINDEX, NOFOLLOW" />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>@ViewBag.Title</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <!-- Icon -->
+    <link rel="icon" type="image/x-icon" href="~/Images/favicon.ico" />
+    <!-- Bootstrap 3.3.7 -->
+    <link rel="stylesheet" href="/Content/bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/Content/bower_components/font-awesome/css/font-awesome.min.css">
+    <!-- iCheck for checkboxes and radio inputs -->
+    <link rel="stylesheet" href="/Content/plugins/iCheck/all.css">
+    <!-- Select2 -->
+    <link href="/Content/bower_components/css/select2.min.css" rel="stylesheet" />
+    <!-- AdminLTE Skins -->
+    <link rel="stylesheet" href="/Content/dist/css/skins/_all-skins.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="/Content/dist/css/AdminLTE.min.css">
+    <!-- AdminLTE Skins -->
+    <link rel="stylesheet" href="/Content/dist/css/skins/_all-skins.min.css">
+    <!-- Wait -->
+    <link href="/Content/waitMe.min.css" rel="stylesheet" />
+    <!-- Alertify -->
+    <link href="/Content/alertifyjs/alertify.min.css" rel="stylesheet" />
+    <link href="/Content/alertifyjs/themes/default.min.css" rel="stylesheet" />
+    <!-- bootstrap datepicker -->
+    <link rel="stylesheet" href="/Content/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">
+    <link href="~/Content/bower_components/daterangepicker/daterangepicker.css" rel="stylesheet" />
+    <!-- Utils -->
+    <link href="/Content/utils.css" rel="stylesheet" />
+    <!-- Style -->
+    <link href="/Content/style.css" rel="stylesheet" />
+
+    <!-- Style section -->
+    @RenderSection("styles", false)
+</head>
+<body class="hold-transition skin-blue layout-top-nav" id="page">
+    <div class="wrapper">
+        @RenderBody()
+        
+    </div>
+
+    <!-- jQuery -->
+    <script src="/Content/bower_components/jquery/dist/jquery.min.js"></script>
+    <!-- jQuery UI -->
+    <script src="/Content/bower_components/jquery-ui/jquery-ui.min.js"></script>
+    <!-- Bootstrap 3.3.7 -->
+    <script src="/Content/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <!-- Plupload -->
+    <script src="/Scripts/plupload/js/plupload.full.min.js"></script>
+    <!-- Momentjs -->
+    <script src="~/Content/bower_components/daterangepicker/moment.min.js"></script>
+    <!-- Bootstrap Datepicker -->
+    <script src="/Content/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
+    <script src="~/Content/bower_components/daterangepicker/daterangepicker.js"></script>
+    <!-- Select2 -->
+    <script src="/Scripts/select2.min.js"></script>
+    <script src="/Scripts/i18n/vi.js"></script>
+    <!-- iCheck 1.0.1 -->
+    <script src="/Content/plugins/iCheck/icheck.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="/Content/dist/js/adminlte.min.js"></script>
+    <!-- Numberic -->
+    <script src="/Scripts/autoNumeric-1.9.41.js"></script>
+    <!--BootPage-->
+    <script src="/Scripts/jquery.twbsPagination.min.js"></script>
+    <!-- Wait -->
+    <script src="/Scripts/waitMe.min.js"></script>
+    <!-- Alertify -->
+    <script src="/Scripts/alertify.min.js"></script>
+    <!-- Utils -->
+    <script src="/Scripts/utils.js"></script>
+    <!-- Layout -->
+    <script src="/Scripts/layout.js"></script>
+    <!-- PrintThis -->
+    <script src="~/Scripts/PrintThis.js"></script>
+    <!-- Script section -->
+    <script>
+        $(function () {
+        })
+        /* event sign out */
+        function onClickSignOut() {
+            $.post('/Admin/Default/LogOut', {}, function (data) {
+                window.location.href = '/admin';
+            }, 'html');
+        }
+    </script>
+    @RenderSection("scripts", false)
+</body>
+</html>

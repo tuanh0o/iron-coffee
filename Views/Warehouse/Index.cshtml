@@ -1,0 +1,472 @@
+﻿@using System.Data
+@{
+    ViewBag.Title = "Quản lý kho";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    DataTable dtUnit = ViewBag.dtUnit as DataTable;
+    DataTable dtSupplier = ViewBag.dtSupplier as DataTable;
+}
+@section styles{
+    <style>
+        #tblWarehouse td {
+            padding: 7px;
+        }
+
+        #thdWarehouse th {
+            padding: 15px 12px 12px 12px;
+        }
+    </style>
+}
+<section class="content-header">
+    <div class="row">
+        <div class="col-xs-12">
+            <h1 class="my-header">
+                Quản lý kho
+            </h1>
+            <button class="btn btn-success pull-right m-l-10" onclick="onAddProduct()">Xuất kho </button>
+            <button class="btn btn-warning pull-right" onclick="onAddWareLog()">Nhập kho </button>
+        </div>
+    </div>
+</section>
+
+<section class="content m-t-10">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Thống kê kho hàng</h3>
+                    <div class="box-tools pull-right" style="top:5px !important">
+                        <button id="btnAddWare" type="button" class="btn btn-box-tool" onclick="onAddWare()" data-toggle="tooltip" title="Thêm hàng hóa kho">
+                            <i class="fa fa-plus-circle text-primary"> </i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="box-body">
+                    <div class="table-responsive">
+                        <table id="tableWarehouse" class="table no-margin table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">#</th>
+                                    <th class="text-center">Mã</th>
+                                    <th class="w-p-40">
+                                        Tên hàng &nbsp; &nbsp;
+                                        <i class="ware-sort fa fa-sort hand" data-index="0" data-sort="0"></i>
+                                    </th>
+                                    <th class="text-center">ĐVT</th>
+                                    <th class="text-center">
+                                        Giá
+                                        &nbsp; &nbsp;
+                                        <i class="ware-sort fa fa-sort hand" data-index="1" data-sort="0"></i>
+                                    </th>
+                                    <th class="text-center">
+                                        Tồn
+                                        &nbsp; &nbsp;
+                                        <i class="ware-sort fa fa-sort hand" data-index="2" data-sort="0"></i>
+                                    </th>
+                                    <th class="text-center">
+                                        Cập nhật
+                                        &nbsp; &nbsp;
+                                        <i class="ware-sort fa fa-sort-up hand text-primary" data-index="3" data-sort="0"></i>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="tblWarehouse">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="box-footer">
+                    <div class="form-group">
+                        <div id="pageDescription"></div>
+                        <div id="pageSelection" class="text-center"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Xuất/ nhập kho</h3>
+                </div>
+
+                <div class="box-body">
+                    <ul class="products-list product-list-in-box">
+                        <li class="item" style="padding-top: 0px !important; padding-bottom: 0px !important">
+                            <div class="product-img">
+                                <img src="~/Images/no-user.jpg" class="img-circle" style="width:30px; height:30px" alt="Product Image">
+                            </div>
+                            <div class="product-info">
+                                <a href="" class="product-title">
+                                    Nhập kho
+                                    <span class="label label-warning pull-right">2,365,000 đ</span>
+                                </a>
+                                <span class="product-description m-t-7">
+                                    Nhập nguyên liệu trà sữa tháng 3
+                                </span>
+                                <p class="text-sm m-t-3">
+                                    <a class="text-success">Thegioinguyenlieu Giaray</a>
+                                    -
+                                    <span class="text-muted">16:04 22/07/2022</span>
+                                </p>
+                            </div>
+                        </li>
+
+                        <li class="item" style="padding-top: 10px !important; padding-bottom: 0px !important">
+                            <div class="product-img">
+                                <img src="~/Images/no-user.jpg" class="img-circle" style="width:30px; height:30px" alt="Product Image">
+                            </div>
+                            <div class="product-info">
+                                <a href="" class="product-title text-success">
+                                    Xuất kho
+                                    <span class="label label-success pull-right">50,000 đ</span>
+                                </a>
+                                <span class="product-description m-t-7">
+                                    Xuất 100 ly nhựa
+                                </span>
+                                <p class="text-sm m-t-3">
+                                    <span class="text-muted">16:04 22/07/2022</span>
+                                </p>
+                            </div>
+                        </li>
+
+                        <li class="item" style="padding-top: 10px !important; padding-bottom: 0px !important">
+                            <div class="product-img">
+                                <img src="~/Images/no-user.jpg" class="img-circle" style="width:30px; height:30px" alt="Product Image">
+                            </div>
+                            <div class="product-info">
+                                <a href="" class="product-title">
+                                    Nhập kho
+                                    <span class="label label-warning pull-right">2,365,000 đ</span>
+                                </a>
+                                <span class="product-description m-t-7">
+                                    Nhập nguyên liệu trà sữa tháng 3
+                                </span>
+                                <p class="text-sm m-t-3">
+                                    <a class="text-success">Thegioinguyenlieu Giaray</a>
+                                    -
+                                    <span class="text-muted">16:04 22/07/2022</span>
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="box-footer text-center">
+                    <a href="javascript:void(0)" class="uppercase">Xem tất cả</a>
+                </div>
+
+            </div>
+        </div>
+
+        @Html.Partial("AddWarePartial")
+        @Html.Partial("EditWarePartial")
+        @Html.Partial("AddWareLogPartial")
+    </div>
+</section>
+@section Scripts{
+    <script>
+        //---------------------------------------------------GLOBAL VARIABLES
+        var _TOTAL_ROW = 0;
+        var _PAGE_INDEX = 1;
+        var _SORT = ''; // 0 is name, 1 price, 2 quantity, 3 date, a asc, d desc
+        var _DEFAULT_IMAGE = '/Images/default-ware.jpg';
+
+        //---------------------------------------------------TOP FILTER
+        $('.ware-sort').on('click', function () {
+            let isSorted = $(this).attr('data-sort'); 
+            if (isSorted == 0) {//no sort click
+                $('.ware-sort').removeClass('text-primary fa-sort-up fa-sort-down').addClass('fa-sort');
+                $(this).removeAttr('data-sort').attr('data-sort', '1');
+                $(this).removeClass('fa-sort');
+                $(this).addClass('text-primary fa-sort-up');
+                _SORT = $(this).attr('data-index') + 'a';
+            } else if (isSorted == 1) {
+                $(this).removeAttr('data-sort').attr('data-sort', '2');
+                $(this).removeClass('fa-sort-up');
+                $(this).addClass('fa-sort-down');
+                _SORT = $(this).attr('data-index') + 'd';
+            } else if (isSorted == 2) {
+                $(this).removeAttr('data-sort').attr('data-sort', '1');
+                $(this).removeClass('fa-sort-down');
+                $(this).addClass('fa-sort-up');
+                _SORT = $(this).attr('data-index') + 'a';
+            }
+            loadPage();
+        })
+
+        //---------------------------------------------------ONLOAD FUNCTIONS
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+            loadPage();
+            loadSelectSupplier('#selSupplierAdd');
+            loadSelectUnit('#selUnitAdd');
+            loadSelectSupplier('#selSupplierEdit');
+            loadSelectUnit('#selUnitEdit');
+        })
+
+        //--------------------------------------------------ADD WARE
+        function onAddWare() {
+
+            $('#modalWareAdd').find('input, textarea').val('');
+            $('#iptPriceInAdd, #iptPriceSaleAdd, #iptInStockAdd, #iptInStockRcmAdd').autoNumeric('set', 0);
+            $('#modalWareAdd').modal({ backdrop: 'static' });
+            $('#iptProductCodeAdd').focus();
+        }
+
+        function addWare() {
+            let code = $('#iptWareCodeAdd').val().trim();
+            let name = $('#iptWareNameAdd').val().trim();
+            let unit = $('#selUnitAdd option:selected').val();
+            let priceIn = $('#iptPriceInAdd').autoNumeric('get');
+            let priceSale = $('#iptPriceSaleAdd').autoNumeric('get');
+            let inStock = $('#iptInStockAdd').autoNumeric('get');
+            let inStockRcm = $('#iptInStockRcmAdd').autoNumeric('get');
+            let supplier = $('#selSupplierAdd option:selected').val();
+            let note = $('#txtNoteAdd').val();
+
+            if (name == '') {
+                alertify.error('Tên sản phẩm không được bỏ trống');
+                $('#iptProductNameAdd').focus();
+                return;
+            }
+
+            let d = {
+                WareCode: code,
+                WareName: name,
+                Unit: unit,
+                PriceIn: priceIn,
+                PriceSale: priceSale,
+                InStock: inStock,
+                InStockRcm: inStockRcm,
+                Supplier: supplier,
+                Note: note
+            }
+            $.post('/Warehouse/Insert', d, function (data) {
+                if (data == "1") {
+                    alertify.success("Thêm sản phẩm thành công");
+                    loadPage();
+                    $('#modalWareAdd').modal('hide');
+                } else if (data == "2") {
+                    alertify.error("Mã sản phẩm đã tồn tại, thay đổi mã khác hoặc bỏ trống để hệ thống tự động tạo code");
+                    $('#iptWareCodeAdd').select();
+                } else if (data == "0") {
+                    alertify.error("Đã có lỗi xảy ra, vui lòng thử lại sau");
+                }
+            }, 'html');
+        }
+
+        //--------------------------------------------------LOAD Product
+
+        function loadPage() {
+            _PAGE_INDEX = 1;
+            $.get('/Warehouse/SelectPage', {
+                Search: ''
+            }, function (data) {
+                if (data != '') {
+                    $.each(data, function (index, item) {
+                        _TOTAL_ROW = item.TotalRow;
+                        if (item.TotalPage > 1) {
+                            $('#pageSelection').twbsPagination('destroy');
+                            window.pagObj = $('#pageSelection').twbsPagination({
+                                totalPages: item.TotalPage,
+                                visiblePages: 5,
+                                startPage: 1,
+                                first: '←',
+                                last: '→',
+                                prev: '«',
+                                next: '»'
+                            }).on('page', function (event, page) {
+                                _PAGE_INDEX = page;
+                                loadTable();
+                            });
+                        }
+                        else {
+                            document.getElementById('pageSelection').innerHTML = '';
+                        }
+                        return false;
+                    })
+                }
+            }, 'json').done(loadTable);
+        }
+
+        function loadTable() {
+            showWaiting();
+            let html = '';
+            let defaultRows;
+            let d = {
+                Search: '',
+                OrderBy: _SORT,
+                PageIndex: _PAGE_INDEX
+            }
+            $.get('/Warehouse/SelectTable', d, function (data) {
+                if (data == '') {
+                    html = '<tr> <td class="text-center text-muted" colspan="8" style="padding-top: 20px;"><i class="fa fa-ellipsis-h fa-size-empty"></i><p>Không có kết quả nào để hiển thị</p></td></tr>'
+                    $('#pageDescription').html('');
+                    $('#tblWarehouse').html(html);
+                } else {
+                    $.each(data, function (index, item) {
+                        html += `<tr data-id="${item.WareId}" class="hand">
+                                                    <td class="text-center text-muted">${((_PAGE_INDEX - 1) * item.DefaultRows + index + 1)}</td>
+                                                    <td class="text-primary">${item.WareCode}</td>
+                                                    <td>${item.WareName}</td>
+                                                    <td class="text-muted">${item.UnitName}</td>
+                                                    <td class="text-right">${item.WarePriceIn.toLocaleString('en-us')} đ</td>
+                                                    <td class="text-right">
+                                                        <span class="label label-${item.xStatus}">${item.Quantity.toLocaleString('en-us')}</span>
+                                                    </td>
+                                                    <td class="text-center text-muted">${item.DateUpdate} </td>
+                                                 </tr>`;
+                        defaultRows = item.DefaultRows;
+                    })
+                    //set text of pageDescription
+                    let count = Object.keys(data).length;
+                    let start = (_PAGE_INDEX - 1) * defaultRows + 1;
+                    let end = start + count - 1;
+                    document.getElementById('pageDescription').innerHTML = 'Đang xem <b>' + (count == 0 ? 0 : start) + '</b> đến <b>' + end + '</b> trong tổng số <b>' + _TOTAL_ROW + '</b> mục';
+                    $('#tblWarehouse').html(html);
+                    $('#tblWarehouse tr').on('click', function () {
+                        onEditWare($(this).attr('data-id'));
+                    })
+                }
+                closeWaiting();
+            }, 'json');
+            $('html, body').animate({ scrollTop: 0 }, 500);
+        }
+
+        function loadSelectUnit(element) {
+            $.get("/Warehouse/SelectUnit", {}, function (data) {
+                let html = data.map((item, index) => {
+                    return `<option value="${item.UnitId}">${item.UnitName}</option>`;
+                }).join('');
+                $(element).html(html);
+                $(element).select2({ width: '100%' });
+            }, 'json');
+        }
+
+        function loadSelectSupplier(element) {
+            $.get("/Warehouse/SelectSupplier", {}, function (data) {
+                let html = data.map((item, index) => {
+                    return `<option value="${item.SupplierId}">${item.SupplierName}</option>`;
+                }).join('');
+                $(element).html(html);
+                $(element).select2({ width: '100%' });
+            }, 'json');
+        }
+
+        //--------------------------------------------------EDIT & DELETE Product
+        function onEditWare(wareId) {
+            showWaiting('tblWare');
+            $.get('/Warehouse/SelectId', {
+                WareId: wareId
+            }, function (data) {
+                if (data != '') {
+                    $.each(data, function (index, item) {
+                        $('#iptWareCodeEdit').val(item.WareCode);
+                        $('#iptWareNameEdit').val(item.WareName);
+                        $('#selUnitEdit').val(item.UnitId).trigger('change');
+                        $('#selSupplierEdit').val(item.SupplierId).trigger('change');
+                        $('#iptPriceInEdit').autoNumeric('set', item.WarePriceIn);
+                        $('#iptPriceSaleEdit').autoNumeric('set', item.WarePriceSale);
+                        $('#iptInStockEdit').autoNumeric('set', item.Quantity);
+                        $('#iptInStockRcmEdit').autoNumeric('set', item.QuantityRecommend);
+                        $('#txtNoteEdit').val(item.WareNote);
+                        return;
+                    })
+                    closeWaiting('tblWare');
+                }
+            }, 'json');
+            $('#btnDelete').attr('onclick', `deleteWare('${wareId}')`);
+            $('#btnUpdate').attr('onclick', `editWare('${wareId}')`);
+            $('#modalWareEdit').modal('show');
+        }
+
+        function editWare(wareId) {
+            let wareName = $('#iptWareNameEdit').val().trim();
+            let priceIn = $('#iptPriceInEdit').autoNumeric('get');
+            let priceSale = $('#iptPriceSaleEdit').autoNumeric('get');
+            let inStock = $('#iptInStockEdit').autoNumeric('get');
+            let inStockRcm = $('#iptInStockRcmEdit').autoNumeric('get');
+            let unitId = $('#selUnitEdit option:selected').val();
+            let supplierId = $('#selSupplierEdit option:selected').val();
+            let note = $('#txtNoteEdit').val().trim();
+
+            if (wareName == '') {
+                alertify.error('Tên sản phẩm không được bỏ trống');
+                $('#iptWareNameEdit').focus();
+                return;
+            }
+
+            let d = {
+                WareId: wareId,
+                WareName: wareName,
+                UnitId: unitId,
+                PriceIn: priceIn,
+                PriceSale: priceSale,
+                InStock: inStock,
+                InStockRcm: inStockRcm,
+                SupplierId: supplierId,
+                Note: note
+            }
+
+            $.post('/Warehouse/Update', d, function (data) {
+                if (data == '1') {
+                    alertify.success('Cập nhật sản phẩm thành công');
+                    $('#modalWareEdit').modal('hide');
+                    loadPage();
+                } else {
+                    alertify.error('Đã có lỗi xảy ra');
+                }
+            }, 'html')
+        }
+
+        function deleteWare(wareId) {
+            alertify.confirm('Bạn có chắc chắn muốn xóa hàng hóa này ?', function () {
+                $.post('/Warehouse/Delete', {
+                    WareId: wareId
+                }, function (data) {
+                    if (data == '1') {
+                        alertify.success('Xóa hàng hóa thành công');
+                        $('#modalWareEdit').modal('hide');
+                        loadPage();
+                    } else {
+                        alertify.error('Đã có lỗi xảy ra');
+                    }
+                }, 'html')
+            })
+        }
+
+        //--------------------------------------------------WARE LOG
+        function onAddWareLog() {
+            $('#modalWareLogAdd').modal('show');
+        }
+
+        function addWareToWareLog() {
+            $('#rAddWare').remove();
+            let trAddWareElement = `<tr><td colspan="2"><select class="form-control"></select></td></tr>`;
+            $('#tbdWareLogAdd').append(trAddWareElement);
+        }
+
+
+
+
+
+
+
+        //sự kiện thêm sp khi press Enter
+        $('#iptProductCodeAdd, #iptProductNameAdd, #iptPriceAdd').on('keypress', function (e) {
+            if (e.keyCode == 13) {
+                addProduct();
+            }
+        });
+
+        //sự kiện thêm danh mục khi press Enter
+        $('#iptCategoryNameAdd, #txtCategoryNoteAdd').on('keypress', function (e) {
+            if (e.keyCode == 13) {
+                addCategory();
+            }
+        });
+
+
+    </script>
+}

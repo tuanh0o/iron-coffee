@@ -1,0 +1,252 @@
+﻿
+@{
+    ViewBag.Title = "Quản lý hóa đơn";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section styles{
+    <style>
+        #tblEmployee td {
+            padding: 12px;
+        }
+
+        #thdEmployee th {
+            padding: 15px 12px 12px 12px;
+        }
+    </style>
+}
+<section class="content-header">
+    <div class="row">
+        <div class="col-xs-12 m-b-15">
+            <h1 class="my-header">
+                Quản lý hóa đơn
+            </h1>
+        </div>
+    </div>
+</section>
+
+<section class="content">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box box-solid">
+                <div class="box-header with-border">
+                    <div class="row">
+                        <div class="col-sm-2 col-xs-6">
+                            <input id="iptDateSearch" class="form-control datepicker hand text-center bg-light-blue-gradient" readonly />
+                        </div>
+                        <div class="col-sm-7 col-xs-6 xs-text-right">
+                            @*<p class="p-t-8 m-b-0 text-red text-bold">TỔNG: <span id="spnTotal">0</span></p>*@
+                        </div>
+                        <div class="col-sm-3 col-xs-12 xs-m-t-8">
+                            <select id="selOrder" class="form-control select2-nosearch" onchange="loadPage()">
+                                <option value="1">Sắp xếp: Theo mã hóa đơn tăng</option>
+                                <option value="2">Sắp xếp: Theo mã hóa đơn giảm</option>
+                                <option value="3">Sắp xếp: Theo giá trị tăng dần</option>
+                                <option value="4">Sắp xếp: Theo giá trị giảm dần</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="box-body no-padding">
+                    <div class="table-responsive">
+                        <table class="table table-hover m-b-0">
+                            <thead id="thdEmployee">
+                                <tr>
+                                    <th class="text-center text-muted w-50">#</th>
+                                    <th class="w-p-20">Mã hóa đơn</th>
+                                    <th class="w-p-15">Vào lúc</th>
+                                    <th class="w-p-15">Ra lúc</th>
+                                    <th class="text-right">Tổng tiền hàng</th>
+                                    <th class="text-right">Giảm giá</th>
+                                    <th class="text-right">Thu khác</th>
+                                    <th class="text-right">Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tblInvoice"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="box-footer">
+                    <div class="form-group">
+                        <div id="pageDescription" class="col-sm-5"></div>
+                        <div id="pageSelection" class="col-sm-7 no-padding"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    @Html.Action("SaleInvoicePartial", "Sale")
+
+</section>
+
+@section Scripts{
+    <script>
+        //---------------------------------------------------INITILAZATION
+        $('#iptDateSearch').datepicker('setDate', new Date);
+
+        //---------------------------------------------------GLOBAL VARIABLES
+        var _TOTAL_ROW = 0;
+        var _PAGE_INDEX = 1;
+
+        //---------------------------------------------------TOP FILTER
+        $('#iptDateSearch').on('change', function () {
+            loadPage();
+        })
+
+        //---------------------------------------------------ONLOAD FUNCTIONS
+        $(function () {
+            loadPage();
+        })
+
+        //--------------------------------------------------LOAD INVOICE
+
+        function loadPage() {
+            _PAGE_INDEX = 1;
+            $.get('/Invoice/SelectPage', {
+                Ngay: moment($('#iptDateSearch').datepicker('getDate')).format('YYYY/MM/DD')
+            }, function (data) {
+                if (data != '') {
+                    $.each(data, function (index, item) {
+                        _TOTAL_ROW = item.TotalRow;
+                        if (item.TotalPage > 1) {
+                            $('#pageSelection').twbsPagination('destroy');
+                            window.pagObj = $('#pageSelection').twbsPagination({
+                                totalPages: item.TotalPage,
+                                visiblePages: 5,
+                                startPage: 1,
+                                first: '←',
+                                last: '→',
+                                prev: '«',
+                                next: '»'
+                            }).on('page', function (event, page) {
+                                _PAGE_INDEX = page;
+                                loadTable();
+                            });
+                        }
+                        else {
+                            document.getElementById('pageSelection').innerHTML = '';
+                        }
+                        return false;
+                    })
+                }
+            }, 'json').done(loadTable);
+        }
+
+        function loadTable() {
+            showWaiting();
+            let html = '';
+            let defaultRows;
+            //let TOTAL = 0;
+            let d = {
+                Ngay: moment($('#iptDateSearch').datepicker('getDate')).format('YYYY/MM/DD'),
+                OrderBy: $('#selOrder option:selected').val(),
+                PageIndex: _PAGE_INDEX
+            }
+            $.get('/Invoice/SelectTable', d, function (data) {
+                if (data == '') {
+                    html = '<tr> <td class="text-center text-muted" colspan="8" style="padding-top: 20px;"><i class="fa fa-ellipsis-h fa-size-empty"></i><p>Không có kết quả nào để hiển thị</p></td></tr>'
+                    document.getElementById('pageDescription').innerHTML = '';
+                } else {
+                    $.each(data, function (index, item) {
+                        //TOTAL += parseInt(item.InvoiceValue);
+                        html += `
+                                <tr class="rowClick hand" data-id="${item.InvoiceId}" data-pop="true" title="${item.InvoiceNote}" data-toggle="tooltip" data-placement="top">
+                                    <td class="text-center text-muted">${((_PAGE_INDEX - 1) * item.DefaultRows + index + 1)}</td>
+                                    <td class="text-primary p-l-12-imp">${item.InvoiceCode}</td>
+                                    <td class="p-l-12-imp">${item.DateCreate}</td>
+                                    <td class="p-l-12-imp">${item.UpdateDate == null ? item.DateCreate : item.UpdateDate}</td>
+                                    <td class="text-right p-r-12-imp">${item.TotalPrice.toLocaleString('en-us')}</td>
+                                    <td class="text-right p-r-12-imp">${item.SaleValue == 0 ? '' : item.SaleValue.toLocaleString('en-us') + (item.SaleType == 0 ? '' : ' %')}</td>
+                                    <td class="text-right p-r-12-imp">${item.OtherFeeValue.toLocaleString('en-us')}</td>
+                                    <td class="text-right p-r-12-imp">${item.InvoiceValue.toLocaleString('en-us')}</td>
+                                </tr>
+                            `;
+                        defaultRows = item.DefaultRows;
+                    })
+                    //set text of pageDescription
+                    let count = Object.keys(data).length;
+                    let start = (_PAGE_INDEX - 1) * defaultRows + 1;
+                    let end = start + count - 1;
+                    document.getElementById('pageDescription').innerHTML = 'Đang xem <b>' + (count == 0 ? 0 : start) + '</b> đến <b>' + end + '</b> trong tổng số <b>' + _TOTAL_ROW + '</b> mục';
+                }
+                //$('#spnTotal').text(TOTAL.toLocaleString('en-us'));
+                $('#tblInvoice').html(html);
+                $('[data-toggle="tooltip"]').tooltip();
+                closeWaiting();
+            }, 'json')
+            $('html, body').animate({ scrollTop: 0 }, 500);
+        }
+
+        //sự kiện onclick hóa đơn
+        $('#tblInvoice').on('click', '.rowClick', function () {
+            let parentRow = $(this);
+            let idInvoice = parentRow.data('id');
+            let pop = parentRow.attr('data-pop');
+            $('.rowDetail').remove();
+            if (pop == 'true') {
+                $('.rowClick[data-pop="false"]').attr('data-pop', 'true');
+                $.post('/Invoice/ViewDetail', { InvoiceId: idInvoice }, function (data) {
+                    parentRow.after(data);
+                });
+            }
+            parentRow.attr('data-pop', (pop == 'true' ? 'false' : 'true'));
+        });
+
+        //sự kiện hủy hóa đơn
+        function deleteInvoice(invoiceId) {
+            alertify.confirm('Bạn có chắc chắn muốn hủy hóa đơn này không ?', function () {
+                $.post('/Invoice/DeleteInvoice', {
+                    InvoiceId: invoiceId
+                }, function (data) {
+                    if (data) {
+                        alertify.success("Đã hủy hóa đơn");
+                        loadPage();
+                    }
+                })
+            })
+        }
+
+        //sự kiện in lại hóa đơn
+        function printInvoice(invoiceId) {
+             $.get('/Sale/SelectId', {
+                InvoiceId: invoiceId
+            }, function (data) {
+                let Invoice = JSON.parse(data.Invoice);
+                let Product = JSON.parse(data.Product);
+
+                //fill dữ liệu vào thông tin hóa đơn
+                Invoice.every(item => {
+                    $('#sppInvoiceCode').text(item.InvoiceCode);
+                    $('#sppInvoiceTime').text(item.CreateDate);
+                    $('#sppInvoiceNote').text(item.InvoiceNote);
+                    //tổng
+                    $('#printTotalPrice').text(item.TotalPrice.toLocaleString('en-us'));
+                    $('#printSaleValue').text(item.TotalSale.toLocaleString('en-us'));
+                    $('#printRevenues').text(item.OtherFeeValue.toLocaleString('en-us'));
+                    $('#printInvoiceValue').text(item.InvoiceValue.toLocaleString('en-us'));
+                })
+                //fill dữ liệu vào bảng sản phẩm đã chọn
+                let html = Product.map((item, index) => {
+                    return `<tr>
+                                <td class="w-30 text-center">${index + 1}</td>
+                                <td>${item.ProductName}</td>
+                                <td class="text-right">${item.ProductQuantity}</td>
+                                <td class="text-right">${item.TotalProductPrice.toLocaleString('en-us')}</td>
+                            </tr>`;
+                }).join('');
+
+                $('#tblpInvoice').html(html);
+            }, 'json');
+
+            $('#containerSalePrint').printThis({
+                beforePrint: function () {
+                    $('#containerSalePrint').removeClass("hidden");
+                }, afterPrint: function () {
+                    window.location.reload();
+                }
+            });
+        }
+
+
+    </script>
+}

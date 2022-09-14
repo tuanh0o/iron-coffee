@@ -1,0 +1,90 @@
+﻿<!-- Modal sửa hàng hóa -->
+<div id="modalWareEdit" class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Cập nhật hàng hóa</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <div class="form-group" style="position: relative;">
+                            <label>Ảnh hàng hóa</label>
+                            <img id="imgWareEdit" class="img-avatar hand" src="~/Images/default-ware.jpg">
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="form-group">
+                            <label>Mã hàng hóa *</label>
+                            <input id="iptWareCodeEdit" type="text" class="form-control inputCapital" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Tên hàng hóa *</label>
+                            <input id="iptWareNameEdit" type="text" class="form-control" autofocus>
+                        </div>
+                        <div class="form-group">
+                            <label>Đơn vị tính *</label>
+                            <select id="selUnitEdit" class="form-control">
+                            </select>
+                        </div>
+                        <div class="form-group m-b-0">
+                            <div class="row">
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label>Giá nhập (VND) *</label>
+                                        <input id="iptPriceInEdit" type="text" class="form-control autonumeric">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label>Giá bán (VND) *</label>
+                                        <input id="iptPriceSaleEdit" type="text" class="form-control autonumeric">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group m-b-0">
+                            <div class="row">
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label>Tồn kho *</label>
+                                        <input id="iptInStockEdit" type="text" class="form-control autonumeric">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label>SL tồn kho khuyến nghị *</label>
+                                        <input id="iptInStockRcmEdit" type="text" class="form-control autonumeric">
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="form-group">
+                            <label>Nhà cung cấp</label>
+                            <select id="selSupplierEdit" class="form-control">
+                            </select>
+                        </div>
+
+                        <div class="form-group m-b-0">
+                            <label>Ghi chú</label>
+                            <textarea id="txtNoteEdit" type="text" class="form-control" rows="1"></textarea>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnDelete" class="btn btn-danger m-w-100 pull-left">Xóa</button>
+                <button type="button" id ="btnUpdate" class="btn btn-success m-w-100">Cập nhật</button>
+                <button type="button" class="btn btn-default m-w-100" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+

@@ -1,0 +1,127 @@
+﻿@{
+    ViewBag.Title = "SaleOnDay";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<section class="content-header">
+    <div class="row">
+        <div class="col-xs-12">
+            <h1 class="my-header">
+                Báo cáo
+            </h1>
+        </div>
+    </div>
+</section>
+<section class="content m-t-10">
+    <div class="row">
+        <div class="col-md-3 ">
+            <div class="box box-primary box-solid">
+                <div class="box-header with-border">
+                    <p class="my-h5">Loại báo cáo</p>
+                </div>
+                <div class="box-body">
+                    <label class="m-t-5 hand"><input class="icheck" type="radio" name="report-type" /> Báo cáo bán hàng theo ngày</label>
+                    <label class="m-t-5 hand"><input class="icheck" type="radio" name="report-type" /> Báo cáo bán hàng theo loại hàng</label>
+                    <label class="m-t-5 hand"><input class="icheck" type="radio" name="report-type" /> Báo cáo bán hàng theo hàng hóa</label>
+                </div>
+            </div>
+
+            <div class="box box-primary box-solid">
+                <div class="box-header with-border">
+                    <p class="my-h5">Thời gian</p>
+                </div>
+                <div class="box-body">
+                    <input id="iptTime" type="text" class="form-control" placeholder="Tuần này" />
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="p-b-10 report-background">
+                <div class="box-body with-border" style="overflow-x: auto">
+                    <div id="" class="a4-fit-poitrait">
+                        <div id="report" class="contentReport">
+                            <table style="width: 100%">
+                                <tbody>
+                                    <tr>
+                                        <td>@DateTime.Now.ToString("HH:mm dd/MM/yyyy")</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center"><h4>BÁO CÁO BÁN HÀNG TỔNG HỢP</h4></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="table-responsive m-t-20">
+                                                <table id="" class="table table-bordered">
+                                                    <thead id="">
+                                                        <tr>
+                                                            <th class="text-center">#</th>
+                                                            <th>Ngày</th>
+                                                            <th class="text-right">Số hóa đơn</th>
+                                                            <th class="text-right">Tổng tiền</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="tbdReport">
+                                                        @for (int i = 1; i < 11; i++)
+                                                        {
+                                                            <tr>
+                                                                <td class="text-center">@i</td>
+                                                                <td>Thứ hai 02/03/2020</td>
+                                                                <td class="text-right">12</td>
+                                                                <td class="text-right">1,566,000</td>
+                                                            </tr>
+                                                        }
+                                                        <tr class="text-bold">
+                                                            <td colspan="2" class="text-center">12 hóa đơn</td>
+                                                            <td class="text-right">56</td>
+                                                            <td class="text-right">200,000</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@section Scripts{
+    <script>
+        $(function () {
+
+        })
+        var _TIME_START = moment().startOf('week').format('DD/MM/YYYY');
+        var _TIME_END = moment().endOf('week').format('DD/MM/YYYY');
+
+        //load Report Sale on Day
+        function loadReportSaleOnDay() {
+            showWaiting();
+
+            $.get('', {
+
+            }, function (data) {
+
+            }, 'json');
+        }
+
+
+
+
+
+        //init daterange-picker
+        let iptTime = $('#iptTime');
+        iptTime.daterangepicker(optionDaterangepicker, function (start, end) {
+            iptTime.val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
+            iptTime.data('start', start.format('DD/MM/YYYY')).data('end', end.format('DD/MM/YYYY'));
+            _TIME_START = start.format('DD/MM/YYYY');
+            _TIME_END = end.format('DD/MM/YYYY');
+            //loadReport();
+        });
+        iptTime.val(moment().startOf('week').format('DD/MM/YYYY') + ' - ' + moment().endOf('week').format('DD/MM/YYYY'));
+        iptTime.data('start', moment().startOf('week').format('DD/MM/YYYY')).data('end', moment().endOf('week').format('DD/MM/YYYY'));
+    </script>
+}

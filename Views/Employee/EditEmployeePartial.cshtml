@@ -1,0 +1,40 @@
+﻿<!--Modal Edit Employee-->
+<div class="modal fade in" id="modalEditEmployee" style="display: none">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title">Chỉnh sửa nhân viên</h4>
+            </div>
+            <div class="modal-body">
+                <form role="form">
+                    <div class="box-body no-padding">
+                        <div class="form-group">
+                            <label>Tài khoản </label>
+                            <input type="text" class="form-control" id="iptAccountEdit" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Họ và tên </label>
+                            <input type="text" class="form-control" id="iptNameEdit">
+                        </div>
+                        <div class="form-group">
+                            <label>Số điện thoại</label>
+                            <input type="text" class="form-control" id="iptPhoneEdit">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" class="form-control" id="iptEmailEdit">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="btnDelete" type="button" class="btn btn-danger pull-left m-w-100">Xóa</button>
+                <button id="btnEdit" type="button" class="btn btn-primary m-w-100">Lưu</button>
+                <button type="button" class="btn btn-default m-w-100" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>

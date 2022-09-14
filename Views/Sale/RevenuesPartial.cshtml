@@ -1,0 +1,62 @@
+﻿<!-- Modal Thêm thu khác -->
+<div id="modalRevenuesAdd" class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Thêm thu khác</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Phí thu khác *</label>
+                            <input id="iptRevenuesValueAdd" type="text" class="form-control autonumeric text-right" placeholder="0" autofocus>
+                        </div>
+                        <div class="form-group m-b-0">
+                            <label>Mô tả *</label>
+                            <textarea id="txtRevenuesNoteAdd" class="form-control" rows="3" placeholder="Mô tả khoản phí thu khác"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="addRevenues()" class="btn btn-primary m-w-100">Thêm</button>
+                <button type="button" class="btn btn-default m-w-100" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal chỉnh sửa thu khác -->
+<div id="modalRevenuesEdit" class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Chỉnh sửa thu khác</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Phí thu khác *</label>
+                            <input id="iptRevenuesValueEdit" type="text" class="form-control autonumeric text-right" autofocus>
+                        </div>
+                        <div class="form-group m-b-0">
+                            <label>Mô tả *</label>
+                            <textarea id="txtRevenuesNoteEdit" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="updateRevenues()" class="btn btn-primary m-w-100">Lưu</button>
+                <button type="button" class="btn btn-default m-w-100" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+

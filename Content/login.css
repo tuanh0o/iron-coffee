@@ -1,0 +1,14 @@
+﻿#smartAlert {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: #fff;
+    color: #808080;
+    text-align: center;
+    padding: 15px 0;
+}

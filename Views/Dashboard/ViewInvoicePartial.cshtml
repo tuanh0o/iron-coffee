@@ -1,0 +1,82 @@
+﻿@using System.Data;
+@{
+    DataTable dtInvoice = ViewBag.dtInvoice as DataTable;
+    DataTable dtProduct = ViewBag.dtProduct as DataTable;
+    string invoiceNote = @dtInvoice.Rows[0]["InvoiceNote"].ToString();
+}
+<div id="modalViewInvoiceDashboard" class="modal">
+    <div class="modal-dialog f13">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Chi tiết hóa đơn @dtInvoice.Rows[0]["InvoiceCode"]</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table m-b-0">
+                            <thead>
+                                <tr>
+                                    <th>Mã SP</th>
+                                    <th>Sản phẩm</th>
+                                    <th class="text-right">Số lượng</th>
+                                    <th class="text-right">Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (DataRow item in dtProduct.Rows)
+                                {
+                                    <tr>
+                                        <td>@item["ProductCode"]</td>
+                                        <td>@item["ProductName"]</td>
+                                        <td class="text-right p-r-12-imp">@Convert.ToInt64(item["ProductQuantity"]).ToString("N0")</td>
+                                        <td class="text-right p-r-12-imp">@Convert.ToInt64(item["TotalProductPrice"]).ToString("N0")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <hr class="m-t-10 m-b-10" />
+                <div class="row">
+                    <div class="col-md-6 col-xs-12 m-t-10">
+                        <p class="text-muted">
+                            @if (invoiceNote != "")
+                            {
+                                <i class="fa fa-info-circle p-r-5"></i>@invoiceNote
+                            }
+                        </p>
+                    </div>
+                    <div class="col-md-6 col-xs-12 text-right m-t-10">
+                        <table style="width: 100%">
+                            <tbody>
+                                <tr>
+                                    <td class="p-t-5">Tổng tiền hàng:</td>
+                                    <td class="p-t-5">@Convert.ToInt64(dtInvoice.Rows[0]["TotalPrice"]).ToString("N0")</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-t-5">Giảm giá hóa đơn:</td>
+                                    <td class="p-t-5">@Convert.ToInt64(dtInvoice.Rows[0]["TotalSale"]).ToString("N0")</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-t-5">Thu khác:</td>
+                                    <td class="p-t-5">@Convert.ToInt64(dtInvoice.Rows[0]["OtherFeeValue"]).ToString("N0")</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-t-5">Khách phải trả:</td>
+                                    <td class="p-t-5 text-bold">@Convert.ToInt64(dtInvoice.Rows[0]["InvoiceValue"]).ToString("N0")</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="printInvoice('@dtInvoice.Rows[0]["InvoiceId"]')" class="btn" style="background: #ccc"><i class="fa fa-print m-r-5"></i>In lại hóa đơn</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+

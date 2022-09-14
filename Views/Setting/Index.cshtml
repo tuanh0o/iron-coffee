@@ -1,0 +1,147 @@
+﻿@using System.Data
+@{
+    ViewBag.Title = "Thiết lập";
+    DataTable dtInfo = ViewBag.dtInfo as DataTable;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section styles{
+    <style>
+        #tblEmployee td {
+            padding: 12px;
+        }
+
+        #thdEmployee th {
+            padding: 15px 12px 12px 12px;
+        }
+    </style>
+}
+<section class="content-header">
+    <div class="row">
+        <div class="col-xs-12 m-b-15">
+            <h1 class="my-header">
+                Thiết lập
+            </h1>
+            <button id="btnEdit" class="btn btn-primary pull-right" onclick="onEditInfo()">Cập nhật</button>
+            <button id="btnCancel" class="btn btn-default pull-right hidden" onclick="window.location.reload();">Hủy</button>
+            <button id="btnSave" class="btn btn-success pull-right m-r-5 hidden" onclick="editInfo()">Lưu</button>
+        </div>
+    </div>
+</section>
+
+<section class="content">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box box-solid">
+                <div class="box-body no-padding" id="boxInfo">
+                    <div class="col-md-2 p-t-10">
+                        <div class="form-group" style="position: relative;">
+                            <label>Logo cửa hàng</label>
+                            <img id="imgLogo" class="img-logo hand" src="@dtInfo.Rows[0]["LogoPath"]">
+                        </div>
+                    </div>
+                    <div class="col-md-5 m-t-10">
+                        <div class="form-group">
+                            <label>Tên cửa hàng</label>
+                            <input id="iptName" class="form-control" type="text" readonly value="@dtInfo.Rows[0]["StoreName"]" />
+                        </div>
+                        <div class="form-group">
+                            <label>Điện thoại</label>
+                            <input class="form-control" id="iptPhone" type="text" readonly value="@dtInfo.Rows[0]["StorePhone"]" />
+                        </div>
+                    </div>
+                    <div class="col-md-5 m-t-10">
+                        <div class="form-group">
+                            <label>Địa chỉ</label>
+                            <input id="iptAddress" class="form-control" type="text" value="@dtInfo.Rows[0]["StoreAddress"]" readonly />
+                        </div>
+                        <div class="form-group">
+                            <label>Thông tin Wifi</label>
+                            <input id="iptWifi" class="form-control" type="text" value="@dtInfo.Rows[0]["WifiInfo"]" readonly />
+                        </div>
+                    </div>
+                    <div class="col-md-10 col-md-offset-2 m-b-8">
+                        <i class="text-muted"><i class="fa fa-info-circle p-r-5"></i>Những thông tin này sẽ hiển thị tương ứng trên hóa đơn của khách hàng</i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts{
+    <script>
+        $(function () {
+        })
+
+        function onEditInfo() {
+            $('#boxInfo').find('input').removeAttr('readonly');
+            $('#btnSave, #btnCancel').removeClass('hidden');
+            $('#btnEdit').addClass('hidden');
+        }
+
+        function editInfo() {
+            let storeName = $('#iptName').val().trim();
+            let storePhone = $('#iptPhone').val().trim();
+            let storeAddress = $('#iptAddress').val().trim();
+            let wifiInfo = $('#iptWifi').val().trim();
+
+            $.post('/Setting/UpdateInfo', {
+                Name: storeName,
+                Address: storeAddress,
+                Phone: storePhone,
+                Wifi: wifiInfo
+            }, function (data) {
+                if (data) {
+                    alertify.success('Cập nhật thông tin thành công !');
+                    $('#boxInfo').find('input').attr('readonly', true);
+                    $('#btnSave, #btnCancel').addClass('hidden');
+                    $('#btnEdit').removeClass('hidden');
+                } else {
+                    alertify.error('Đã có lỗi xảy ra, mã lỗi: ' + data);
+                }
+            })
+        }
+
+        //init event upload image add
+        var uploaderAdd = new plupload.Uploader({
+            runtimes: 'html5,flash,silverlight,html4',
+            browse_button: 'imgLogo',
+            unique_names: true,
+            multiple_queues: false,
+            multi_selection: false,
+            max_file_count: 1,
+            url: "/File/UploadLogo",
+            filters: {
+                max_file_size: '1mb',
+                mime_types: [
+                    { title: "Image files", extensions: "jpg,png,jpeg" }
+                ],
+                prevent_duplicates: true
+            },
+            flash_swf_url: '/Scripts/plupload/js/Moxie.swf',
+            silverlight_xap_url: '/Scripts/plupload/js/Moxie.xap',
+            init: {
+                PostInit: function () {
+                },
+                FilesAdded: function (up, files) {
+                    uploaderAdd.start();
+                    return false;
+                },
+                UploadProgress: function (up, file) {
+                },
+                Error: function (up, err) {
+                    alertify.error(err.code + err.message);
+                },
+                FileUploaded: function (up, file, info) {
+                    let url = info.response;
+                    let img = $('#imgLogo');
+                    img.removeAttr('src');
+                    img.attr('src', url);
+                    uploaderAdd.splice();
+                },
+            }
+        });
+        uploaderAdd.init();
+
+    </script>
+}

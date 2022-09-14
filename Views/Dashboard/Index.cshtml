@@ -1,0 +1,327 @@
+﻿@using System.Data;
+@{
+    ViewBag.Title = "Trang chủ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    DataTable dtCount = ViewBag.dtCount as DataTable;
+    long x = Convert.ToInt64(dtCount.Rows[0]["SoVoiHomQua"]);
+    string icon = "";
+    if (x > 0) { icon = "fa-arrow-circle-up"; } else { icon = "fa-arrow-circle-down"; }
+
+}
+
+<section class="content">
+    <div class="row">
+        <div class="col-lg-12">
+
+            <div class="row m-t-10">
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="info-box">
+
+                        <span class="info-box-icon bg-light-blue-gradient"><i class="fa @icon"></i></span>
+
+                        <div class="info-box-content">
+                            <span class="info-box-text">SO VỚI HÔM QUA</span>
+                            <span class="info-box-number" id="">@x.ToString("N0") đ</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-light-blue-gradient"><i class="fa fa-file"></i></span>
+
+                        <div class="info-box-content">
+                            <span class="info-box-text">HÓA ĐƠN HÔM NAY</span>
+                            <span class="info-box-number" id="spnSoHoaDon">@Convert.ToInt32(dtCount.Rows[0]["SoHoaDon"]).ToString("N0")</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-light-blue-gradient"><i class="fa fa-money"></i></span>
+
+                        <div class="info-box-content">
+                            <span class="info-box-text">DOANH THU HÔM NAY</span>
+                            <span class="info-box-number" id="spnDoanhThu">@Convert.ToInt32(dtCount.Rows[0]["DoanhThu"]).ToString("N0") <small>đ</small></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix visible-sm-block"></div>
+
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-light-blue-gradient"><i class="fa fa-glass"></i></span>
+
+                        <div class="info-box-content">
+                            <span class="info-box-text">SẢN PHẨM</span>
+                            <span class="info-box-number" id="spnSoSanPham">@Convert.ToInt32(dtCount.Rows[0]["SanPham"]).ToString("N0")</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row m-t-10">
+                <!--Chart-->
+                <div class="col-lg-9">
+                    <div class="nav-tabs-custom">
+                        <ul class="nav nav-tabs pull-right">
+                            <li><a href="#money-chart" data-toggle="tab" onclick="loadChartMoney()">Doanh thu</a></li>
+                            <li class="active"><a href="#quantity-chart" data-toggle="tab" onclick="loadChartQuantity()">Số lượng</a></li>
+                            <li class="pull-left header"><i class="fa fa-area-chart"></i> Biểu đồ</li>
+                        </ul>
+                        <div class="tab-content no-padding">
+                            <div class="chart tab-pane active" id="quantity-chart">
+                                <div id="divChartQuantity">
+                                    <canvas class="m-t-10" id="canChartQuantity"></canvas>
+                                </div>
+                            </div>
+                            <div class="chart tab-pane" id="money-chart">
+                                <div id="divChartMoney">
+                                    <canvas class="m-t-10" id="canChartMoney"></canvas>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!--Time line-->
+                <div class="col-lg-3">
+                    <ul class="timeline" id="timeline" style="height: 520px;overflow-y: auto;">
+                        <li class="time-label">
+                            <input id="dtpTimeline" class="form-control datepicker my-timeline" readonly />
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="divViewInvoice">
+
+    </div>
+    @Html.Action("SaleInvoicePartial", "Sale")
+</section>
+@section Scripts{
+    <script>
+        $('#dtpTimeline').datepicker('setDate', new Date);
+
+        $(function () {
+            loadTimeline();
+           // loadChartMoney();
+            loadChartQuantity();
+        })
+
+        //call ajax every 'x' milisecond
+        setInterval(function () {
+            window.location.reload();
+        }, 60000);
+
+        //----------------------------------------------------------------------CHART
+        function loadChartQuantity() {
+            //$('#divChartQuantity').empty().html('<canvas class="m-t-10" id="canChartQuantity" width="800" height="400"></canvas>');
+            let arrProduct = [];
+            let arrQuantity = [];
+            $.get('/Dashboard/SelectChartQuantity', {}, function (data) {
+                if (data != '') {
+                    data.filter(item => {
+                        arrProduct.push(item.ProductName);
+                        arrQuantity.push(item.Quantity);
+                    })
+                    new Chart(document.getElementById("canChartQuantity"), {
+                type: 'bar',
+                data: {
+                    labels: arrProduct,
+                    datasets: [
+                        {
+                            label: 'Số lượng đã bán hôm nay',
+                            backgroundColor: '#3c8dbc',
+                            data: arrQuantity
+                        }
+                    ]
+                },
+                options: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 12,
+                            padding: 20
+                        }
+                    },
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            },
+                            stacked: true
+                        }],
+                        xAxes: [{
+                            stacked: true
+                        }],
+                    },
+                }
+            });
+                }
+            }, 'json')
+
+            
+        }
+
+        function loadChartMoney() {
+            //$('#divChartMoney').empty().html('<canvas class="m-t-10" id="canChartMoney" width="800" height="400"></canvas>');
+            let arrDay = [];
+            let arrMoney = [];
+            $.get('/Dashboard/SelectChartMoney', {}, function (data) {
+                if (data != '') {
+                    data.filter(item => {
+                        arrDay.push(item.Ngay);
+                        arrMoney.push(item.Money);
+                    })
+                                new Chart(document.getElementById("canChartMoney"), {
+                type: 'line',
+                data: {
+                    labels: arrDay,
+                    datasets: [
+                        {
+                            label: 'Doanh thu tháng này',
+                            borderColor: '#3c8dbc',
+                            data: arrMoney
+                        }
+                    ]
+                },
+                options: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 12,
+                            padding: 20
+                        }
+                    },
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                                callback: function (value, index, values) {
+                                    return value.toLocaleString("en-us") + ' đ';
+                                },
+                            },
+                            stacked: true,
+                        }],
+                        xAxes: [{
+                            stacked: true,
+                        }],
+                    },
+                    tooltips: {
+                        callbacks: {
+                            title: function (tooltipItems, data) {
+                                return 'Ngày ' + tooltipItems[0].xLabel;
+                            },
+                            label: function (tooltipItem, data) {
+                                return tooltipItem.yLabel.toLocaleString('en-us') + ' đ';
+                            }
+                        },
+                    }
+                }
+            });
+                }
+            }, 'json')
+        }
+
+        function loadTimeline() {
+            let dayChosen = $('#dtpTimeline').datepicker('getDate');
+            $.get('/Dashboard/SelectTimeline', {
+                Day: moment(dayChosen).format("YYYY/MM/DD")
+            }, function (data) {
+                let iconStyle = '';
+                if (data != '') {
+                    let html = data.map((item, index) => {
+                        switch (item.ActLogCode) {
+                            case 1: case 2: iconStyle = 'fa-money text-white bg-blue'; break;
+                            case 3: case 4: iconStyle = 'fa-shopping-cart text-light-green'; break;
+                            default: iconStyle = 'fa-trash text-white bg-red'; break;
+                        }
+                        return `<li>
+                                                    <i class="fa  ${iconStyle}"></i>
+                                                    <div class="timeline-item">
+                                                        <p class="timeline-header no-border my-timeline-header">
+                                                            <b>${item.TenNhanVien}</b> ${item.ActLogName} <a href="#" onclick="viewInvoice('${item.RelateId}')">${item.InvoiceCode}</a>
+                                                        </p>
+                                                        <small class="text-muted p-l-10">${item.TimeAgo}</small>
+                                                    </div>
+                                                </li>`;
+                    }).join('');
+                    $('#timeline').html('');
+                    $('#timeline').html(`<li class="time-label"><input id="dtpTimeline" class="form-control datepicker my-timeline" readonly /></li>`);
+                    $('#timeline').append(html);
+                } else {
+                    $('#timeline').html('');
+                    $('#timeline').html(`<li class="time-label"><input id="dtpTimeline" class="form-control datepicker my-timeline" readonly /></li>`);
+                }
+                $('#dtpTimeline').datepicker({ autoclose: true, format: 'dd/mm/yyyy', ignoreReadonly: true });
+                $('#dtpTimeline').datepicker('setDate', dayChosen);
+                $("#dtpTimeline").on('change', function () {
+                    loadTimeline();
+                })
+            }, 'json')
+        }
+
+        $("#dtpTimeline").on('change', function () {
+            loadTimeline();
+        })
+
+        //xem cthd
+        function viewInvoice(id) {
+            $('#divViewInvoice').html('');
+            showWaiting();
+            $.get('/Dashboard/ViewInvoicePartial', { InvoiceId: id }, function (data) {
+                $('#divViewInvoice').after(data);
+                $('#modalViewInvoiceDashboard').modal('show');
+                closeWaiting();
+            })
+        }
+
+         //sự kiện in lại hóa đơn
+        function printInvoice(invoiceId) {
+             $.get('/Sale/SelectId', {
+                InvoiceId: invoiceId
+            }, function (data) {
+                let Invoice = JSON.parse(data.Invoice);
+                let Product = JSON.parse(data.Product);
+
+                //fill dữ liệu vào thông tin hóa đơn
+                Invoice.every(item => {
+                    $('#sppInvoiceCode').text(item.InvoiceCode);
+                    $('#sppInvoiceTime').text(item.CreateDate);
+                    $('#sppInvoiceNote').text(item.InvoiceNote);
+                    //tổng
+                    $('#printTotalPrice').text(item.TotalPrice.toLocaleString('en-us'));
+                    $('#printSaleValue').text(item.TotalSale.toLocaleString('en-us'));
+                    $('#printRevenues').text(item.OtherFeeValue.toLocaleString('en-us'));
+                    $('#printInvoiceValue').text(item.InvoiceValue.toLocaleString('en-us'));
+                })
+                //fill dữ liệu vào bảng sản phẩm đã chọn
+                let html = Product.map((item, index) => {
+                    return `<tr>
+                                <td class="w-30 text-center">${index + 1}</td>
+                                <td>${item.ProductName}</td>
+                                <td class="text-right">${item.ProductQuantity}</td>
+                                <td class="text-right">${item.TotalProductPrice.toLocaleString('en-us')}</td>
+                            </tr>`;
+                }).join('');
+
+                $('#tblpInvoice').html(html);
+            }, 'json');
+
+            $('#containerSalePrint').printThis({
+                beforePrint: function () {
+                    $('#containerSalePrint').removeClass("hidden");
+                }, afterPrint: function () {
+                    window.location.reload();
+                }
+            });
+        }
+
+    </script>
+}
+
+
